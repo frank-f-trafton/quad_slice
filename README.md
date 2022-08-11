@@ -2,7 +2,7 @@
 
 # quad\_slice
 
-QuadSlice is a basic 9slice drawing library for LÖVE, intended for 2D menu panels and buttons. Its main goal is to be easy to use.
+QuadSlice is a basic 9slice drawing library for LÖVE, intended for 2D menu panels and buttons.
 
 
 ![screen_quad_slice](https://user-images.githubusercontent.com/23288188/184142728-87a97b4e-e0a2-4c34-bac8-50f3c1f5d45f.png)
