@@ -1,3 +1,4 @@
+**NOTE:** This library is currently a beta.
 
 # quad\_slice
 
@@ -138,7 +139,7 @@ Draws a 9slice.
 
 `x`: X position for drawing.
 
-`y`: Y positino for drawing.
+`y`: Y position for drawing.
 
 `w`: Width of the mosaic to draw.
 
@@ -160,14 +161,10 @@ If `w` or `h` are <= 0, then nothing is drawn. You can reverse a 9slice by trans
 function love.draw()
 	local x, y, w, h = 64, 64, 128, 128
 
-	love.graphics.push()
-
 	love.graphics.translate(math.floor(x + w/2), math.floor(y + h/2))
 	love.graphics.scale(-1, -1) -- flips on both axes
 
 	quadSlice.draw(slice, -w/2, -h/2, w, h, false)
-
-	love.graphics.pop()
 end
 ```
 
@@ -354,4 +351,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
