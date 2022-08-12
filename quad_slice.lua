@@ -1,8 +1,8 @@
 --[[
-	A basic 9-slice drawing library for LÖVE, intended for 2D UI / menu elements.
+	QuadSlice: a basic 9-slice library for LÖVE, intended for 2D UI / menu elements.
 	See README.md for usage notes.
 
-	Version: 0.0.2 (Beta)
+	Version: 1.0.0
 
 	License: MIT
 
@@ -233,7 +233,7 @@ function quadSlice.getDrawParams(slice, w, h)
 	local w3, h3 = slice.w3, slice.h3
 	local w2, h2 = math.max(0, w - (w1 + w3)), math.max(0, h - (h1 + h3))
 
-	-- This code block allows the edge quads to be crunched down if there isn't enough room to render everything.
+	-- Allows edges to be crunched down.
 	-- It looks pretty ugly, and should be avoided when possible.
 	-- [[
 	w1 = math.min(w1, w1 * (w / (slice.w1 + slice.w3)))
@@ -367,6 +367,67 @@ end
 
 
 -- * / Slice positioning and drawing *
+
+
+-- * Mesh helpers *
+
+
+--[[
+	Actual drawing of the mesh is left to the library user, as there are so many ways to approach it.
+	See 'test_mesh_render.lua' for a basic example.
+--]]
+
+
+function quadSlice.getTextureUV(slice)
+
+	local tw, th = slice.image:getDimensions()
+
+	local sx1 = slice.x / tw
+	local sy1 = slice.y / th
+	local sx2 = (slice.x + slice.w1) / tw
+	local sy2 = (slice.y + slice.h1) / th
+	local sx3 = (slice.x + slice.w1 + slice.w2) / tw
+	local sy3 = (slice.y + slice.h1 + slice.h2) / th
+	local sx4 = (slice.x + slice.w1 + slice.w2 + slice.w3) / tw
+	local sy4 = (slice.y + slice.h1 + slice.h2 + slice.h3) / th
+
+	return sx1, sy1, sx2, sy2, sx3, sy3, sx4, sy4
+end
+
+
+function quadSlice.getStretchedVertices(slice, w, h)
+
+	-- Crunch down edges
+	-- [[
+	local crunch_w = math.min(1, w / slice.w)
+	local crunch_h = math.min(1, h / slice.h)
+	local w1 = math.floor(slice.w1 * crunch_w)
+	local h1 = math.floor(slice.h1 * crunch_h)
+	local w3 = math.floor(slice.w3 * crunch_w)
+	local h3 = math.floor(slice.h3 * crunch_h)
+	--]]
+
+	-- Preserve edges
+	--[[
+	w = math.max(w, slice.w)
+	h = math.max(h, slice.h)
+	print("w", w, "h", h)
+	local w1 = slice.w1
+	local h1 = slice.h1
+	local w3 = slice.w3
+	local h3 = slice.h3
+	--]]
+
+	local x2 = w1
+	local y2 = h1
+	local x3 = math.max(x2, w - w3)
+	local y3 = math.max(y2, h - h3)
+
+	return 0, 0, x2, y2, x3, y3, w, h
+end
+
+
+-- * / Mesh helpers *
 
 
 return quadSlice

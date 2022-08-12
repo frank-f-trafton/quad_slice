@@ -1,6 +1,8 @@
-**NOTE:** This library is currently a beta.
-
 # quad\_slice
+
+
+**VERSION:** 1.0.0
+
 
 QuadSlice is a basic 9slice drawing library for LÖVE, intended for 2D menu panels and buttons.
 
@@ -34,6 +36,8 @@ end
 
 * Support for mirroring the right column and/or bottom row of tiles
 
+* Helper functions to get UV and vertex coordinates for [LÖVE mesh objects](https://love2d.org/wiki/Mesh).
+
 
 ## Limitations
 
@@ -44,8 +48,6 @@ end
 
 * 9slices may have artifacts if you draw at a non-integer scale, or otherwise use coordinates or dimensions that are "off-grid."
 
-* The stretchy tiles in the mosaic are scaled with the `sx` and `sy` arguments in `love.graphics.draw`. I haven't encountered any visible seams between tiles in my testing, but I also haven't ruled out the possibility. (Todo: somehow test every possible size and floored scale value, up to a certain threshold, I guess.) If you do run into seams, verify that you are drawing at a per-pixel or per-dpi-scaled-pixel level, that you are flooring the dimensions to the pixel grid, and try making the center tiles power-of-two sized, as floating point seems to be pretty good at storing n/po2 fractions. Linear filtering may also help to mask the issue. Worst case: you can make the center tile 1x1 pixels in size, so that `sx` and `sy` become `max(0, w - (w1+w3))` and `max(0, h - (h1+h3))` respectively. Anyways, I'll be back once I've done some more testing on this.
-
 
 ## Functions: Slice table creation
 
@@ -53,6 +55,7 @@ end
 ### quadSlice.new9Slice
 
 Creates a new 9slice definition.
+
 
 *Function Signature:*
 
@@ -96,7 +99,7 @@ local slice = quadSlice.new9Slice(my_image, 0,0, 16,16, 4,4, 16,16)
 ### quadSlice.new9SliceMirror\*
 
 
-These are variations of `quadSlice.new9Slice` which mirror the right column and/or bottom row with tiles from the opposite end. The image used must have the `mirroredrepeat` [WrapMode](https://love2d.org/wiki/WrapMode) set on the desired axes -- `new9Slice*` does not set this automatically.
+These are variations of `quadSlice.new9Slice` which mirror quads for the right column and/or bottom row with those from the opposite side. The image used must have the `mirroredrepeat` [WrapMode](https://love2d.org/wiki/WrapMode) set on the desired axes -- `new9Slice*` does not set this automatically.
 
 
 *Function Signatures:*
@@ -116,6 +119,12 @@ The arguments are the same as `new9Slice()`, except that the dimensions of mirro
 
 
 *Returns:* a 9slice definition table.
+
+
+*Notes:*
+
+
+The 9slice table does not keep track of mirroring state, and this does not apply to mesh objects (where it is easier to set up mirroring, simply by swapping around some UVs -- see the mesh section for more info.)
 
 
 ## Functions: Slice positioning and drawing
@@ -171,6 +180,7 @@ end
 
 
 ### quadSlice.batchAdd
+
 
 Adds a 9slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
@@ -254,7 +264,7 @@ As with `batchAdd`, this function does not support reversed 9slices.
 ### quadSlice.getDrawParams
 
 
-Gets parameters that are needed to draw a 9slice at a desired width and height with [love.graphics.draw](https://love2d.org/wiki/love.graphics.draw).
+Gets parameters that are needed to draw a 9slice's quads at a desired width and height.
 
 
 *Function Signature:*
@@ -278,7 +288,7 @@ Gets parameters that are needed to draw a 9slice at a desired width and height w
 *Notes:*
 
 
-This is really an internal function, but it's available publicly in case you want to store some calculations when drawing multiple copies of a 9slice of the same dimensions.
+This is really an internal function, but it's exposed in case you want to store some calculations when drawing multiple copies of a 9slice of the same dimensions.
 
 
 ### quadSlice.\*FromParams
@@ -287,7 +297,7 @@ This is really an internal function, but it's available publicly in case you wan
 Variations of `quadSlice.draw`, `quadSlice.batchAdd` and `quadSlice.batchSet` which take parameters returned by `quadSlice.getDrawParams`.
 
 
-*Function Signature:*
+*Function Signatures:*
 
 
 `quadSlice.drawFromParams(slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)`
@@ -328,6 +338,70 @@ Variations of `quadSlice.draw`, `quadSlice.batchAdd` and `quadSlice.batchSet` wh
 
 
 *Returns:* Nothing.
+
+
+## Functions: Mesh helpers
+
+
+QuadSlice doesn't handle LÖVE meshes directly, but you can use these functions to get the raw vertex and UV coordinates for your own mesh setup and drawing code.
+
+
+### quadSlice.getTextureUV
+
+
+Gets UV offsets which can be used to populate a mesh.
+
+
+*Function Signature:*
+
+
+`quadSlice.getTextureUV(slice)`
+
+
+*Arguments:*
+
+
+`slice`: The 9slice object to read.
+
+
+*Returns:* Four pairs of XY coordinates in the range of 0-1, which correspond to the edges around the columns and rows of the 9slice texture: `sx1`, `sy1`, `sx2`, `sy2`, `sx3`, `sy3`, `sx4`, and `sy4`.
+
+
+*Notes:* Mirroring assigned with `new9SliceMirror*` won't be detected here, as that is implemented by changing quad viewports, and none of the mesh helper functions touch quads at all. The good news is that tile mirroring with meshes is much easier, and can be achieved without using the `mirroredrepeat` WrapMode:
+
+
+```lua
+-- Horizontal
+sx3, sx4 = sx2, sx1
+
+-- Vertical
+sy3, sy4 = sy2, sy1
+```
+
+
+### quadSlice.getStretchedVertices
+
+
+Gets 9slice vertex positions for a given width and height.
+
+
+*Function Signature:*
+
+
+`quadSlice.getStretchedVertices(slice, w, h)`
+
+
+*Arguments:*
+
+
+`slice`: The 9slice object to read.
+
+`w`: Width for the 9slice to be drawn.
+
+`h`: Height for the 9slice to be drawn.
+
+
+*Returns:* The following vertex positions: `x1`, `y1`, `x2`, `y2`, `x3`, `y3`, `x4`, and `y4`.
 
 
 # MIT License
