@@ -114,14 +114,8 @@ local function updateMesh(mesh, vertices, w, h)
 	sv[16][ 1], sv[16][ 2] = x4,  y4
 
 	mesh:setVertices(sv)
-end
 
-
-local function drawMesh(mesh, x, y, w, h)
-
-	if w <= 0 or h <= 0 then return end
-
-	love.graphics.draw(mesh, 64, 64)
+	return true
 end
 
 
@@ -133,8 +127,10 @@ function love.draw()
 	local w = mx - 64
 	local h = my - 64
 
-	updateMesh(mesh, slice_vertices, w, h)
-	drawMesh(mesh, mx, my, w, h)
+	if w > 0 and h > 0 then
+		updateMesh(mesh, slice_vertices, w, h)
+		love.graphics.draw(mesh, 64, 64)
+	end
 end
 
 
