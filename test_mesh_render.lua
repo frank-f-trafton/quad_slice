@@ -31,7 +31,7 @@ local vertex_map = {
 
 -- Set up the 9slice as usual.
 local image1 = love.graphics.newImage("demo_res/9s_image.png")
-local slice1 = quadSlice.new9Slice(image1, 32,32, 64,64, 8,8, 64,64)
+local slice1 = quadSlice.new9Slice(32,32, 64,64, 8,8, 64,64, image1:getDimensions())
 
 
 -- Calculate the UV details from the 9slice.

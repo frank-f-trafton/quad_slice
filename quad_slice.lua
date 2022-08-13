@@ -2,7 +2,7 @@
 	QuadSlice: a basic 9-slice library for LÖVE, intended for 2D UI / menu elements.
 	See README.md for usage notes.
 
-	Version: 1.0.0
+	Version: 1.1.0
 
 	License: MIT
 
@@ -62,46 +62,45 @@ local quadSlice = {}
 -- * Internal *
 
 
-local function errGTZero(arg_n)
-	error("argument #" .. arg_n .. " must be greater than zero.", 2)
+local function errGTZero(id, arg_n, level)
+	error("argument #" .. arg_n .. " (" .. id .. ") must be a number greater than zero.", level or 2)
 end
 
 
-local function new9Slice(image, x, y, w1, h1, w2,h2, w3,h3)
+local function errBadType(id, arg_n, val, expected, level)
+	error("argument #" .. arg_n .. " (" .. id .. "): bad type (expected " .. expected .. ", got " .. type(val) .. ").", level or 2)
+end
 
-	local slice = {}
 
-	slice.image = image
+local function assertDrawParams(arg_n_start, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
 
-	slice.x = x
-	slice.y = y
+	if type(quads) ~= "table" then errBadType("quads", arg_n_start + 0, quads, "table", 3)
+	elseif hollow ~= nil and type(hollow) ~= "boolean" then errBadType("hollow", arg_n_start + 1, hollow, "bool/nil", 3)
+	elseif type(x) ~= "number" then errBadType("x", arg_n_start + 2, x, "number", 3)
+	elseif type(y) ~= "number" then errBadType("y", arg_n_start + 3, y, "number", 3)
+	elseif type(w1) ~= "number" then errBadType("w1", arg_n_start + 4, w1, "number", 3)
+	elseif type(h1) ~= "number" then errBadType("h1", arg_n_start + 5, h1, "number", 3)
+	elseif type(w2) ~= "number" then errBadType("w2", arg_n_start + 6, w2, "number", 3)
+	elseif type(h2) ~= "number" then errBadType("h2", arg_n_start + 7, h2, "number", 3)
+	elseif type(w3) ~= "number" then errBadType("w3", arg_n_start + 8, w3, "number", 3)
+	elseif type(h3) ~= "number" then errBadType("h3", arg_n_start + 9, h3, "number", 3)
+	elseif type(sw1) ~= "number" then errBadType("sw1", arg_n_start + 10, sw1, "number", 3)
+	elseif type(sh1) ~= "number" then errBadType("sh1", arg_n_start + 11, sh1, "number", 3)
+	elseif type(sw2) ~= "number" then errBadType("sw2", arg_n_start + 12, sw2, "number", 3)
+	elseif type(sh2) ~= "number" then errBadType("sh2", arg_n_start + 13, sh2, "number", 3)
+	elseif type(sw3) ~= "number" then errBadType("sw3", arg_n_start + 14, sw3, "number", 3)
+	elseif type(sh3) ~= "number" then errBadType("sh3", arg_n_start + 15, sh3, "number", 3) end
+end
 
-	slice.w = w1 + w2 + w3
-	slice.h = h1 + h2 + h3
 
-	slice.w1, slice.h1 = w1, h1
-	slice.w2, slice.h2 = w2, h2
-	slice.w3, slice.h3 = w3, h3
+local function assertDraw(arg_n_start, slice, x, y, w, h, hollow)
 
-	local image_w, image_h = image:getDimensions()
-	local newQuad = love.graphics.newQuad
-	local quads = {}
-
-	quads[1] = newQuad(x, y, w1, h1, image_w, image_h)
-	quads[2] = newQuad(x + w1, y, w2, h1, image_w, image_h)
-	quads[3] = newQuad(x + w1 + w2, y, w3, h1, image_w, image_h)
-
-	quads[4] = newQuad(x, y + h1, w1, h2, image_w, image_h)
-	quads[5] = newQuad(x + w1, y + h1, w2, h2, image_w, image_h)
-	quads[6] = newQuad(x + w1 + w2, y + h1, w3, h2, image_w, image_h)
-
-	quads[7] = newQuad(x, y + h1 + h2, w1, h3, image_w, image_h)
-	quads[8] = newQuad(x + w1, y + h1 + h2, w2, h3, image_w, image_h)
-	quads[9] = newQuad(x + w1 + w2, y + h1 + h2, w3, h3, image_w, image_h)
-
-	slice.quads = quads
-
-	return slice
+	if type(slice) ~= "table" then errBadType("slice", arg_n_start + 0, slice, "table")
+	elseif type(x) ~= "number" then errBadType("x", arg_n_start + 1, x, "number", 3)
+	elseif type(y) ~= "number" then errBadType("y", arg_n_start + 2, y, "number", 3)
+	elseif type(w) ~= "number" then errBadType("w", arg_n_start + 3, w, "number", 3)
+	elseif type(h) ~= "number" then errBadType("h", arg_n_start + 4, h, "number", 3)
+	elseif hollow ~= nil and type(hollow) ~= "boolean" then errBadType("hollow", arg_n_start + 5, hollow, "bool/nil") end
 end
 
 
@@ -126,108 +125,122 @@ end
 -- * / Internal *
 
 
--- * Slice table creation *
+-- * Slice table creation and tweaks *
 
 
-function quadSlice.new9Slice(image, x,y, w1,h1, w2,h2, w3,h3)
+function quadSlice.new9Slice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)
 
 	-- Assertions
 	-- [[
-	if w1 <= 0 then errGTZero(4)
-	elseif h1 <= 0 then errGTZero(5)
-	elseif w2 <= 0 then errGTZero(6)
-	elseif h2 <= 0 then errGTZero(7)
-	elseif w3 <= 0 then errGTZero(8)
-	elseif h3 <= 0 then errGTZero(9) end
+	if type(x) ~= "number" then errBadType("x", 1, x, "number", 3)
+	elseif type(y) ~= "number" then errBadType("y", 2, y, "number", 3)
+	elseif type(w1) ~= "number" or w1 <= 0 then errGTZero("w1", 3, 3)
+	elseif type(h1) ~= "number" or h1 <= 0 then errGTZero("h1", 4, 3)
+	elseif type(w2) ~= "number" or w2 <= 0 then errGTZero("w2", 5, 3)
+	elseif type(h2) ~= "number" or h2 <= 0 then errGTZero("h2", 6, 3)
+	elseif type(w3) ~= "number" or w3 <= 0 then errGTZero("w3", 7, 3)
+	elseif type(h3) ~= "number" or h3 <= 0 then errGTZero("h3", 8, 3)
+	elseif type(iw) ~= "number" or iw <= 0 then errGTZero("iw", 9, 3)
+	elseif type(ih) ~= "number" or ih <= 0 then errGTZero("ih", 10, 3) end
 	--]]
 
-	local slice = new9Slice(image, x,y, w1,h1, w2,h2, w3,h3)
+	local slice = {}
+
+	slice.iw, slice.ih = iw, ih
+	slice.x, slice.y = x, y
+
+	slice.w, slice.h = (w1 + w2 + w3), (h1 + h2 + h3)
+
+	slice.w1, slice.h1 = w1, h1
+	slice.w2, slice.h2 = w2, h2
+	slice.w3, slice.h3 = w3, h3
+
+	local newQuad = love.graphics.newQuad
+
+	-- You could comment out or delete this if you intend to only use the mesh helper functions.
+	-- [[
+	local quads = {}
+
+	quads[1] = newQuad(x, y, w1, h1, iw, ih)
+	quads[2] = newQuad(x + w1, y, w2, h1, iw, ih)
+	quads[3] = newQuad(x + w1 + w2, y, w3, h1, iw, ih)
+
+	quads[4] = newQuad(x, y + h1, w1, h2, iw, ih)
+	quads[5] = newQuad(x + w1, y + h1, w2, h2, iw, ih)
+	quads[6] = newQuad(x + w1 + w2, y + h1, w3, h2, iw, ih)
+
+	quads[7] = newQuad(x, y + h1 + h2, w1, h3, iw, ih)
+	quads[8] = newQuad(x + w1, y + h1 + h2, w2, h3, iw, ih)
+	quads[9] = newQuad(x + w1 + w2, y + h1 + h2, w3, h3, iw, ih)
+
+	slice.quads = quads
+	--]]
 
 	return slice
 end
 
 
-function quadSlice.new9SliceMirrorH(image, x,y, w1,h1, w2,h2, h3)
-
-	-- Assertions
-	-- [[
-	if w1 <= 0 then errGTZero(4)
-	elseif h1 <= 0 then errGTZero(5)
-	elseif w2 <= 0 then errGTZero(6)
-	elseif h2 <= 0 then errGTZero(7)
-	elseif h3 <= 0 then errGTZero(8) end
-	--]]
-
-	local w3 = w1
-	local slice = new9Slice(image, x,y, w1,h1, w2,h2, w3,h3)
-	local quads = slice.quads
-
-	mirrorQuad(quads[1], quads[3], true, false)
-	mirrorQuad(quads[4], quads[6], true, false)
-	mirrorQuad(quads[7], quads[9], true, false)
-
-	return slice
-end
-
-
-function quadSlice.new9SliceMirrorV(image, x,y, w1,h1, w2,h2, w3)
-
-	-- Assertions
-	-- [[
-	if w1 <= 0 then errGTZero(4)
-	elseif h1 <= 0 then errGTZero(5)
-	elseif w2 <= 0 then errGTZero(6)
-	elseif h2 <= 0 then errGTZero(7)
-	elseif w3 <= 0 then errGTZero(8) end
-	--]]
-
-	local h3 = h1
-	local slice = new9Slice(image, x,y, w1,h1, w2,h2, w3,h3)
-	local quads = slice.quads
-
-	mirrorQuad(quads[1], quads[7], false, true)
-	mirrorQuad(quads[2], quads[8], false, true)
-	mirrorQuad(quads[3], quads[9], false, true)
-
-	return slice
-end
-
-
-function quadSlice.new9SliceMirrorHV(image, x,y, w1,h1, w2,h2)
-
-	-- Assertions
-	-- [[
-	if w1 <= 0 then errGTZero(4)
-	elseif h1 <= 0 then errGTZero(5)
-	elseif w2 <= 0 then errGTZero(6)
-	elseif h2 <= 0 then errGTZero(7) end
-	--]]
-
-	local w3, h3 = w1, h1
-	local slice = new9Slice(image, x,y, w1,h1, w2,h2, w3,h3)
-	local quads = slice.quads
-
-	mirrorQuad(quads[1], quads[3], true, false)
-	mirrorQuad(quads[4], quads[6], true, false)
-
-	mirrorQuad(quads[1], quads[7], false, true)
-	mirrorQuad(quads[2], quads[8], false, true)
-
-	mirrorQuad(quads[1], quads[9], true, true)
-
-	return slice
-end
-
-
--- * / Slice table creation *
+-- * / Slice table creation and tweaks *
 
 
 -- * Slice positioning and drawing *
 
 
+function quadSlice.setQuadMirroring(slice, hori, vert)
+
+	-- Assertions
+	-- [[
+	if type(slice) ~= "table" then errBadType("slice", 1, slice, "table")
+	elseif hori ~= nil and type(hori) ~= "boolean" then errBadType("hori", 2, hori, "bool/nil")
+	elseif vert ~= nil and type(vert) ~= "boolean" then errBadType("vert", 3, vert, "bool/nil") end
+	--]]
+
+	-- NOTE: this has no effect on the mesh helper functions, as they don't use LÖVE quads.
+
+	local quads = slice.quads
+	local x,y, w1,h1, w2,h2, w3,h3 = slice.x, slice.y, slice.w1, slice.h1, slice.w2, slice.h2, slice.w3, slice.h3
+
+	-- First, reset all mirror-able quads so that this action is easy to undo.
+	quads[3]:setViewport(x, y + h1, w1, h2)
+	quads[6]:setViewport(x + w1, y + h1, w2, h2)
+	quads[7]:setViewport(x, y + h1 + h2, w1, h3)
+	quads[8]:setViewport(x + w1, y + h1 + h2, w2, h3)	
+	quads[9]:setViewport(x + w1 + w2, y + h1, w3, h2)
+
+	if hori and vert then
+		mirrorQuad(quads[1], quads[3], true, false)
+		mirrorQuad(quads[4], quads[6], true, false)
+
+		mirrorQuad(quads[1], quads[7], false, true)
+		mirrorQuad(quads[2], quads[8], false, true)
+
+		mirrorQuad(quads[1], quads[9], true, true)
+
+	elseif hori then
+		mirrorQuad(quads[1], quads[3], true, false)
+		mirrorQuad(quads[4], quads[6], true, false)
+		mirrorQuad(quads[7], quads[9], true, false)
+
+	elseif vert then
+		mirrorQuad(quads[1], quads[7], false, true)
+		mirrorQuad(quads[2], quads[8], false, true)
+		mirrorQuad(quads[3], quads[9], false, true)		
+	end
+end
+
+
 function quadSlice.getDrawParams(slice, w, h)
 
-	if w <= 0 or h <= 0 then return end
+	-- Assertions -- commented out by default.
+	--[[
+	if type(slice) ~= "table" then errBadType("slice", 1, slice, "table")
+	elseif type(w) ~= "number" then errBadType("w", 2, w, "number")
+	elseif type(h) ~= "number" then errBadType("h", 3, h, "number") end
+	--]]
+
+	if w <= 0 or h <= 0 then
+		return
+	end
 
 	local w1, h1 = slice.w1, slice.h1
 	local w3, h3 = slice.w3, slice.h3
@@ -252,23 +265,31 @@ function quadSlice.getDrawParams(slice, w, h)
 	local sw3 = w3 / slice.w3
 	local sh3 = h3 / slice.h3
 
-	return w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3
+	return w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3
 end
 
 
-function quadSlice.draw(slice, x, y, w, h, hollow)
+function quadSlice.draw(image, slice, x, y, w, h, hollow)
 
-	if w <= 0 or h <= 0 then return end
+	-- Assertions -- commented out by default.
+	--[[
+	assertDraw(2, slice, x, y, w, h, hollow)
+	--]]
 
-	local w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3 = quadSlice.getDrawParams(slice, w, h)
-	quadSlice.drawFromParams(slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)
+	if w <= 0 or h <= 0 then
+		return
+	end
+
+	quadSlice.drawFromParams(image, slice.quads, hollow, x,y, quadSlice.getDrawParams(slice, w, h))
 end
 
 
-function quadSlice.drawFromParams(slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)
+function quadSlice.drawFromParams(image, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
 
-	local quads = slice.quads
-	local image = slice.image
+	-- Assertions -- commented out by default.
+	--[[
+	assertDrawParams(2, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+	--]]
 
 	-- Top row
 	love.graphics.draw(image, quads[1], x, y, 0, sw1, sh1)
@@ -293,19 +314,27 @@ end
 
 function quadSlice.batchAdd(batch, slice, x, y, w, h, hollow)
 
-	if w <= 0 or h <= 0 then return end
+	-- Assertions -- commented out by default.
+	--[[
+	assertDraw(2, slice, x, y, w, h, hollow)
+	--]]
 
-	local w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3 = quadSlice.getDrawParams(slice, w, h)
-	local last_index = quadSlice.batchAddFromParams(batch, slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)
+	if w <= 0 or h <= 0 then
+		return
+	end
+
+	local last_index = quadSlice.batchAddFromParams(batch, slice.quads, hollow, x, y, quadSlice.getDrawParams(slice, w, h))
 
 	return last_index
 end
 
 
-function quadSlice.batchAddFromParams(batch, slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)
+function quadSlice.batchAddFromParams(batch, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
 
-	local quads = slice.quads
-	local image = slice.image
+	-- Assertions -- commented out by default.
+	--[[
+	assertDrawParams(2, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+	--]]
 
 	-- Top row
 	batch:add(quads[1], x, y, 0, sw1, sh1)
@@ -332,17 +361,26 @@ end
 
 function quadSlice.batchSet(batch, index, slice, x, y, w, h, hollow)
 
-	if w <= 0 or h <= 0 then return end
+	-- Assertions -- commented out by default.
+	--[[
+	assertDraw(3, slice, x, y, w, h, hollow)
+	--]]
 
-	local w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3 = quadSlice.getDrawParams(slice, w, h)
-	quadSlice.batchSetFromParams(batch, index, slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)
+	if w <= 0 or h <= 0 then
+		return
+	end
+
+	quadSlice.batchSetFromParams(batch, index, slice.quads, hollow, x, y, quadSlice.getDrawParams(slice, w, h))
 end
 
 
-function quadSlice.batchSetFromParams(batch, index, slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)
+function quadSlice.batchSetFromParams(batch, index, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
 
-	local quads = slice.quads
-	local image = slice.image
+	-- Assertions -- commented out by default.
+	--[[
+	if type(index) ~= "number" then errBadType("index", 2, index, "number") end
+	assertDrawParams(3, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+	--]]
 
 	-- Top row
 	batch:set(index, quads[1], x, y, 0, sw1, sh1)
@@ -380,22 +418,26 @@ end
 
 function quadSlice.getTextureUV(slice)
 
-	local tw, th = slice.image:getDimensions()
+	-- No assertions.
 
-	local sx1 = slice.x / tw
-	local sy1 = slice.y / th
-	local sx2 = (slice.x + slice.w1) / tw
-	local sy2 = (slice.y + slice.h1) / th
-	local sx3 = (slice.x + slice.w1 + slice.w2) / tw
-	local sy3 = (slice.y + slice.h1 + slice.h2) / th
-	local sx4 = (slice.x + slice.w1 + slice.w2 + slice.w3) / tw
-	local sy4 = (slice.y + slice.h1 + slice.h2 + slice.h3) / th
+	local iw, ih = slice.iw, slice.ih
+
+	local sx1 = slice.x / iw
+	local sy1 = slice.y / ih
+	local sx2 = (slice.x + slice.w1) / iw
+	local sy2 = (slice.y + slice.h1) / ih
+	local sx3 = (slice.x + slice.w1 + slice.w2) / iw
+	local sy3 = (slice.y + slice.h1 + slice.h2) / ih
+	local sx4 = (slice.x + slice.w1 + slice.w2 + slice.w3) / iw
+	local sy4 = (slice.y + slice.h1 + slice.h2 + slice.h3) / ih
 
 	return sx1, sy1, sx2, sy2, sx3, sy3, sx4, sy4
 end
 
 
 function quadSlice.getStretchedVertices(slice, w, h)
+
+	-- No assertions.
 
 	-- Crunch down edges
 	-- [[
@@ -411,7 +453,6 @@ function quadSlice.getStretchedVertices(slice, w, h)
 	--[[
 	w = math.max(w, slice.w)
 	h = math.max(h, slice.h)
-	print("w", w, "h", h)
 	local w1 = slice.w1
 	local h1 = slice.h1
 	local w3 = slice.w3

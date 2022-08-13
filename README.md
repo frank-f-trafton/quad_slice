@@ -1,7 +1,7 @@
 # quad\_slice
 
 
-**VERSION:** 1.0.0
+**VERSION:** 1.1.0 *(see CHANGELOG.md for breaking changes from 1.0.0)*
 
 
 QuadSlice is a basic 9slice drawing library for LÖVE, intended for 2D menu panels and buttons.
@@ -19,12 +19,12 @@ local quadSlice = require("quad_slice")
 local image = love.graphics.newImage("demo_res/9s_image.png")
 
 -- (The 9slice starts at at 32x32, and has 64x64 corner tiles and an 8x8 center.)
-local slice = quadSlice.new9Slice(image, 32,32, 64,64, 8,8, 64,64) -- x,y, w1,h1, w2,h2, w3,h3
+local slice = quadSlice.new9Slice(32,32, 64,64, 8,8, 64,64, image:getWidth(), image:getHeight())
 
 function love.draw()
 	local mx, my = love.mouse.getPosition()
 
-	quadSlice.draw(slice, 32, 32, mx - 32, my - 32) -- x, y, w, h
+	quadSlice.draw(image, slice, 32, 32, mx - 32, my - 32)
 end
 ```
 
@@ -60,13 +60,11 @@ Creates a new 9slice definition.
 *Function Signature:*
 
 
-`quadSlice.new9Slice(image, x,y, w1,h1, w2,h2, w3,h3)`
+`quadSlice.new9Slice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)`
 
 
 *Arguments:*
 
-
-* `image`: The texture containing the tile mosaic.
 
 * `x`: Left X position of the tile mosaic within the texture.
 
@@ -84,6 +82,10 @@ Creates a new 9slice definition.
 
 * `h3`: Height of the bottom row of tiles. (Must be > 0)
 
+* `iw`: Width of the reference image.
+
+* `ih`: Height of the reference image.
+
 
 *Returns:* a 9slice definition table.
 
@@ -92,58 +94,63 @@ Creates a new 9slice definition.
 
 
 ```lua
-local slice = quadSlice.new9Slice(my_image, 0,0, 16,16, 4,4, 16,16)
+local slice = quadSlice.new9Slice(0,0, 16,16, 4,4, 16,16, my_image:getDimensions())
 ```
-
-
-### quadSlice.new9SliceMirror\*
-
-
-These are variations of `quadSlice.new9Slice` which mirror quads for the right column and/or bottom row with those from the opposite side. The image used must have the `mirroredrepeat` [WrapMode](https://love2d.org/wiki/WrapMode) set on the desired axes -- `new9Slice*` does not set this automatically.
-
-
-*Function Signatures:*
-
-
-`quadSlice.new9SliceMirrorH(image, x,y, w1,h1, w2,h2, h3)`
-
-`quadSlice.new9SliceMirrorV(image, x,y, w1,h1, w2,h2, w3)`
-
-`quadSlice.new9SliceMirrorHV(image, x,y, w1,h1, w2,h2)`
-
-
-*Arguments:*
-
-
-The arguments are the same as `new9Slice()`, except that the dimensions of mirrored fields (third column and/or row) are missing.
-
-
-*Returns:* a 9slice definition table.
-
-
-*Notes:*
-
-
-The 9slice table does not keep track of mirroring state, and this does not apply to mesh objects (where it is easier to set up mirroring, simply by swapping around some UVs -- see the mesh section for more info.)
 
 
 ## Functions: Slice positioning and drawing
 
 
-### quadSlice.draw
+### quadSlice.setQuadMirroring
 
 
-Draws a 9slice.
+Modifies the quads in a 9slice by mirroring the right column and/or bottom row with those on the opposite side. The image used must have the `mirroredrepeat` [WrapMode](https://love2d.org/wiki/WrapMode) set on the desired axes.
 
 
 *Function Signature:*
 
 
-`quadSlice.draw(slice, x, y, w, h, hollow)`
+`quadSlice.setQuadMirroring(slice, hori, vert)`
 
 
 *Arguments:*
 
+
+`slice`: The 9slice to modify.
+
+`hori`: When true, the right column mirrors the left column.
+
+`vert`: When true, the bottom row mirrors the top row.
+
+*Returns:* Nothing.
+
+
+*Notes:*
+
+
+* Mirroring can be un-done by calling the function again with *false* for `hori` and/or `vert`.
+
+* The 9slice table does not keep track of mirroring state (as in, there are no flags in the 9slice table that indicate the current mirroring).
+
+* This doesn't apply to the mesh helper functions, which don't use quads.
+
+
+### quadSlice.draw
+
+
+Draws a 9slice using calls to `love.graphics.draw`.
+
+
+*Function Signature:*
+
+
+`quadSlice.draw(image, slice, x, y, w, h, hollow)`
+
+
+*Arguments:*
+
+
+`image`: The image to use.
 
 `slice`: The 9slice definition table.
 
@@ -155,7 +162,7 @@ Draws a 9slice.
 
 `h`: Height of the mosaic to draw.
 
-`hollow`: When true, prevents the center tile (quad #5) from being drawn. Can be used to frame other visual entities.
+`hollow`: *(boolean, optional)* When true, prevents the center tile from being drawn. Can be used to frame other visual entities.
 
 
 *Returns:* Nothing.
@@ -164,7 +171,7 @@ Draws a 9slice.
 *Notes:*
 
 
-If `w` or `h` are <= 0, then nothing is drawn. You can reverse a 9slice by translating and flipping the LÖVE coordinate system (passing -1 as one or both arguments to [love.graphics.scale](https://love2d.org/wiki/love.graphics.scale)) and offsetting by the desired width and height:
+* If `w` or `h` are <= 0, then nothing is drawn. You can reverse a 9slice by translating and flipping the LÖVE coordinate system (passing -1 as one or both arguments to [love.graphics.scale](https://love2d.org/wiki/love.graphics.scale)) and offsetting by the desired width and height:
 
 
 ```lua
@@ -174,7 +181,7 @@ function love.draw()
 	love.graphics.translate(math.floor(x + w/2), math.floor(y + h/2))
 	love.graphics.scale(-1, -1) -- flips on both axes
 
-	quadSlice.draw(slice, -w/2, -h/2, w, h, false)
+	quadSlice.draw(image, slice, -w/2, -h/2, w, h, false)
 end
 ```
 
@@ -206,7 +213,7 @@ Adds a 9slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
 `h`: Height of the mosaic to add.
 
-`hollow`: When true, prevents the center tile (quad #5) from being added to the batch.
+`hollow`: *(Optional, boolean)* When true, prevents the center tile (quad #5) from being added to the batch.
 
 
 *Returns:* The index of the last quad added to the batch.
@@ -215,7 +222,7 @@ Adds a 9slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 *Notes:*
 
 
-QuadSlice currently does not support adding reversed 9slices (as in, flipping or mirroring the entire mosaic) to SpriteBatches. You can reverse the SpriteBatch itself when drawing, but that also reverses all other quads added to it.
+* QuadSlice currently does not support adding reversed 9slices (as in, flipping or mirroring the entire mosaic) to SpriteBatches. You can reverse the SpriteBatch itself when drawing, but that also reverses all other quads added to it.
 
 
 ### quadSlice.batchSet
@@ -247,7 +254,7 @@ Sets 9slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBat
 
 `h`: Height of the mosaic to set.
 
-`hollow`: When true, prevents the center tile (quad #5) from being set in the batch.
+`hollow`: When true, prevents the center tile from being set in the batch.
 
 
 *Returns:* Nothing.
@@ -256,9 +263,9 @@ Sets 9slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBat
 *Notes:*
 
 
-Be warned that when `hollow` is true, this function will set *eight* sprites, not nine.
+* Be warned that when `hollow` is true, this function will set *eight* sprites, not nine.
 
-As with `batchAdd`, this function does not support reversed 9slices.
+* As with `batchAdd`, this function does not support reversed 9slices.
 
 
 ### quadSlice.getDrawParams
@@ -282,13 +289,13 @@ Gets parameters that are needed to draw a 9slice's quads at a desired width and 
 
 `h`: Height of the 9slice that you want to draw.
 
-*Returns:* Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `w3`, `h3`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, `sh3`
+*Returns:* Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `w3`, `h3`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, and `sh3`.
 
 
 *Notes:*
 
 
-This is really an internal function, but it's exposed in case you want to store some calculations when drawing multiple copies of a 9slice of the same dimensions.
+* This is really an internal function, but it's exposed in case you want to store some calculations when drawing multiple copies of a 9slice of the same dimensions.
 
 
 ### quadSlice.\*FromParams
@@ -300,17 +307,17 @@ Variations of `quadSlice.draw`, `quadSlice.batchAdd` and `quadSlice.batchSet` wh
 *Function Signatures:*
 
 
-`quadSlice.drawFromParams(slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)`
+`quadSlice.drawFromParams(image, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
 
-`quadSlice.batchAddFromParams(batch, slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)`
+`quadSlice.batchAddFromParams(batch, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
 
-`quadSlice.batchSetFromParams(batch, index, slice, x, y, w1, h1, w2, h2, w3, h3, sw1, sh1, sw2, sh2, sw3, sh3, hollow)`
+`quadSlice.batchSetFromParams(batch, index, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
 
 
 *Arguments:*
 
 
-`slice`, `batch`, `index`, and `hollow` are the same as in the main versions of these functions.
+`image`, `batch`, `index` and `hollow` are the same as in the main versions of these functions. `quads` is the internal sequence of quads from the 9slice (ie `slice.quads`).
 
 `w1`: Calculated width of the left tile column.
 
@@ -367,7 +374,9 @@ Gets UV offsets which can be used to populate a mesh.
 *Returns:* Four pairs of XY coordinates in the range of 0-1, which correspond to the edges around the columns and rows of the 9slice texture: `sx1`, `sy1`, `sx2`, `sy2`, `sx3`, `sy3`, `sx4`, and `sy4`.
 
 
-*Notes:* Mirroring assigned with `new9SliceMirror*` won't be detected here, as that is implemented by changing quad viewports, and none of the mesh helper functions touch quads at all. The good news is that tile mirroring with meshes is much easier, and can be achieved without using the `mirroredrepeat` WrapMode:
+*Notes:*
+
+* Mirroring assigned with `setQuadMirroring` won't be detected here, as that is implemented by changing quad viewports, and none of the mesh helper functions touch quads at all. Tile mirroring with meshes can be achieved without using the `mirroredrepeat` WrapMode, if back-face culling is not enabled:
 
 
 ```lua

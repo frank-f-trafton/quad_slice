@@ -1,5 +1,36 @@
 # QuadSlice Changelog
 
+
+## v1.1.0 (2022\-08\-13)
+
+**NOTE:** This is an API-breaking update.
+
+* Reorganized the library to allow sharing 9slices among multiple compatible images. The use case is to help with UI skinning.
+
+  * 9slice tables no longer contain an `image` field. Instead, they store a reference width and height (fields `iw` and `ih`).
+
+  * Draw functions are modified to take a separate `image` reference.
+
+* Removed `quadSlice.new9SliceMirrorH`, `quadSlice.new9SliceMirrorV`, and `quadSlice.new9SliceMirrorHV`. Replacing them is `quadSlice.setQuadMirroring`, which can be called on any existing 9slice table, and which is reversible.
+
+* Added assertions for object creation and mirroring. Assertions are included for draw functions, though they are commented out by default due to overhead concerns. No assertions are provided for the mesh helper functions.
+
+
+### Upgrade guide for v1.0.0 to v1.1.0
+
+* Replace instances of `quadSlice.new9SliceMirrorH`, `quadSlice.new9SliceMirrorV`, and `quadSlice.new9SliceMirrorHV` with `quadSlice.new9Slice` followed by `quadSlice.setQuadMirroring`.
+
+* Update arguments used in `quadSlice.new9Slice` (the first arg (`image`) was removed. Now it takes `iw` and `ih` as the last arguments, for the image's width and height, respectively).
+
+* `quadSlice.draw`: Now takes an additional `image` variable as its first argument.
+
+* `quadSlice.drawFromParams`: Now takes an `image` variable as its first argument, and the sequence of quads from a slice instead of the slice table itself. The `hollow` argument has been moved so that the results of `quadSlice.getDrawParams` can be included directly into the arguments list (in Lua, multi return values in an args list are cut off by any subsequent arguments).
+
+* `quadSlice.batchAddFromParams`: Now takes the sequence of quads from a slice instead of the slice table itself. The `hollow` argument has been moved.
+
+* `quadSlice.batchSetFromParams`: Now takes the sequence of quads from a slice instead of the slice table itself. The `hollow` argument has been moved.
+
+
 ## v1.0.0 (2022\-08\-12)
 
 * Added mesh helpers: `quadSlice.getTextureUV()` and `quadSlice.getStretchedVertices()`. Added `test_mesh_render.lua` to test these new functions. There are so many ways to set up and draw a mesh that attempting to handle it in-library would just get in the way, so that part is left to the library user.

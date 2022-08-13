@@ -2,27 +2,36 @@
 	Tests QuadSlice functions.
 --]]
 
+love.window.setVSync(0)
+
 local quadSlice = require("quad_slice")
 
 local image1 = love.graphics.newImage("demo_res/9s_test1.png")
 image1:setFilter("nearest", "nearest")
-local slice1 = quadSlice.new9Slice(image1, 8,8, 3,3, 2,2, 3,3)
+local slice1 = quadSlice.new9Slice(8,8, 3,3, 2,2, 3,3, image1:getDimensions())
 
 local image2 = love.graphics.newImage("demo_res/9s_test2.png")
 image2:setFilter("linear", "linear")
-local slice2 = quadSlice.new9Slice(image2, 8,8, 3,3, 2,2, 3,3)
+local slice2 = quadSlice.new9Slice(8,8, 3,3, 2,2, 3,3, image2:getDimensions())
 
 local image3 = love.graphics.newImage("demo_res/9s_test3.png")
 image3:setFilter("nearest", "nearest")
-local slice3 = quadSlice.new9Slice(image3, 0,0, 32,32, 8,8, 32,32)
+local slice3 = quadSlice.new9Slice(0,0, 32,32, 8,8, 32,32, image3:getDimensions())
 
 local image_mir = love.graphics.newImage("demo_res/9s_mir.png")
 image_mir:setFilter("nearest", "nearest")
 image_mir:setWrap("mirroredrepeat", "mirroredrepeat") -- <- Important
-local slice_mir_none = quadSlice.new9Slice(image_mir, 0,0, 32,32, 32,32, 32,32)
-local slice_mir_h = quadSlice.new9SliceMirrorH(image_mir, 0,0, 32,32, 32,32, 32)
-local slice_mir_v = quadSlice.new9SliceMirrorV(image_mir, 0,0, 32,32, 32,32, 32)
-local slice_mir_hv = quadSlice.new9SliceMirrorHV(image_mir, 0,0, 32,32, 32,32)
+
+local slice_mir_none = quadSlice.new9Slice(0,0, 32,32, 32,32, 32,32, image_mir:getDimensions())
+
+local slice_mir_h = quadSlice.new9Slice(0,0, 32,32, 32,32, 32,32, image_mir:getDimensions())
+quadSlice.setQuadMirroring(slice_mir_h, true, false)
+
+local slice_mir_v = quadSlice.new9Slice(0,0, 32,32, 32,32, 32,32, image_mir:getDimensions())
+quadSlice.setQuadMirroring(slice_mir_v, false, true)
+
+local slice_mir_hv = quadSlice.new9Slice(0,0, 32,32, 32,32, 32,32, image_mir:getDimensions())
+quadSlice.setQuadMirroring(slice_mir_hv, true, true)
 
 local batch1 = love.graphics.newSpriteBatch(image_mir) -- tests batch:add()
 
@@ -80,7 +89,7 @@ function love.draw()
 		demo_h = math.floor(32*2 + math.sin(demo_time / 1.1) * 32)
 
 		love.graphics.scale(3, 3)
-		quadSlice.draw(slice1, 8, 8, demo_w, demo_h)
+		quadSlice.draw(image1, slice1, 8, 8, demo_w, demo_h)
 
 		love.graphics.pop()
 
@@ -91,7 +100,7 @@ function love.draw()
 		demo_w = math.floor(128*2 + math.cos(demo_time) * 64)
 		demo_h = math.floor(128*2 + math.sin(demo_time / 1.1) * 64)
 
-		quadSlice.draw(slice2, 384, 24, demo_w, demo_h)
+		quadSlice.draw(image2, slice2, 384, 24, demo_w, demo_h)
 
 		love.graphics.pop()
 
@@ -105,7 +114,7 @@ function love.draw()
 		love.graphics.setColor(0, 0, 1, 0.5)
 
 		love.graphics.setColor(1, 1, 1, 1)
-		quadSlice.draw(slice3, mx - 64, my - 64, demo_w, demo_h, true)
+		quadSlice.draw(image3, slice3, mx - 64, my - 64, demo_w, demo_h, true)
 
 		love.graphics.pop()
 
@@ -116,10 +125,10 @@ function love.draw()
 		demo_w = math.floor(96 + math.cos(demo_time + math.pi/4) * 32)
 		demo_h = math.floor(96 + math.sin((demo_time / 1.1) + math.pi/4) * 32)
 
-		quadSlice.draw(slice_mir_none, 8 + 196*0, 448, demo_w, demo_h)
-		quadSlice.draw(slice_mir_h, 8 + 196*1, 448, demo_w, demo_h)
-		quadSlice.draw(slice_mir_v, 8 + 196*2, 448, demo_w, demo_h)
-		quadSlice.draw(slice_mir_hv, 8 + 196*3, 448, demo_w, demo_h)
+		quadSlice.draw(image_mir, slice_mir_none, 8 + 196*0, 448, demo_w, demo_h)
+		quadSlice.draw(image_mir, slice_mir_h, 8 + 196*1, 448, demo_w, demo_h)
+		quadSlice.draw(image_mir, slice_mir_v, 8 + 196*2, 448, demo_w, demo_h)
+		quadSlice.draw(image_mir, slice_mir_hv, 8 + 196*3, 448, demo_w, demo_h)
 
 		love.graphics.pop()
 
@@ -149,4 +158,5 @@ function love.draw()
 	end
 
 	love.graphics.print("PAGE " .. page .. "/2 (1: lg.draw tests, 2: spritebatch tests)", 8, love.graphics.getHeight() - love.graphics.getFont():getHeight())
+	love.graphics.print(love.timer.getFPS(), 750, 550)
 end

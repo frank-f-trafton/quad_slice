@@ -18,7 +18,8 @@ local quad_rep = love.graphics.newQuad(0, 0, 0, 0, image_rep)
 
 -- The 9slice.
 local image_slice = love.graphics.newImage("demo_res/rep_9s.png")
-local slice = quadSlice.new9SliceMirrorHV(image_slice, 0,0, 32,32, 32,32)
+local slice = quadSlice.new9Slice(0,0, 32,32, 32,32, 32,32, image_slice:getDimensions())
+quadSlice.setQuadMirroring(slice, true, true)
 image_slice:setWrap("mirroredrepeat", "mirroredrepeat")
 
 -- Some optional extras.
@@ -65,7 +66,7 @@ function love.draw()
 	quad_rep:setViewport(math.floor(vp_x), math.floor(vp_y), vp_w, vp_h)
 	love.graphics.draw(image_rep, quad_rep, window_x + frame_w/2, window_y + frame_h/2)
 
-	quadSlice.draw(slice, window_x, window_y, vp_w + frame_w, vp_h + frame_h, true)
+	quadSlice.draw(image_slice, slice, window_x, window_y, vp_w + frame_w, vp_h + frame_h, true)
 
 	-- Uncomment to add a literal bell and whistle to the 9slice frame.
 	--[[
