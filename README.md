@@ -376,7 +376,7 @@ Gets UV offsets which can be used to populate a mesh.
 
 *Notes:*
 
-* Mirroring assigned with `setQuadMirroring` won't be detected here, as that is implemented by changing quad viewports, and none of the mesh helper functions touch quads at all. Tile mirroring with meshes can be achieved without using the `mirroredrepeat` WrapMode, if back-face culling is not enabled:
+* Mirroring assigned with `setQuadMirroring` won't be detected here, as that is implemented by changing quad viewports, and none of the mesh helper functions touch quads at all. Tile mirroring with meshes can be achieved without using the `mirroredrepeat` WrapMode:
 
 
 ```lua
