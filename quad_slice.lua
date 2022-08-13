@@ -125,7 +125,7 @@ end
 -- * / Internal *
 
 
--- * Slice table creation and tweaks *
+-- * Slice table creation *
 
 
 function quadSlice.new9Slice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)
@@ -180,7 +180,7 @@ function quadSlice.new9Slice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)
 end
 
 
--- * / Slice table creation and tweaks *
+-- * / Slice table creation *
 
 
 -- * Slice positioning and drawing *
