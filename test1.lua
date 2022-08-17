@@ -2,7 +2,7 @@
 	Tests QuadSlice functions.
 --]]
 
-love.window.setVSync(0)
+--love.window.setVSync(0)
 
 local quadSlice = require("quad_slice")
 
@@ -158,5 +158,5 @@ function love.draw()
 	end
 
 	love.graphics.print("PAGE " .. page .. "/2 (1: lg.draw tests, 2: spritebatch tests)", 8, love.graphics.getHeight() - love.graphics.getFont():getHeight())
-	love.graphics.print(love.timer.getFPS(), 750, 550)
+	love.graphics.print("FPS: " .. love.timer.getFPS(), 720, 550)
 end

@@ -1,7 +1,7 @@
 # quad\_slice
 
 
-**VERSION:** 1.1.0 *(see CHANGELOG.md for breaking changes from 1.0.0)*
+**VERSION:** 1.2.0 *(see CHANGELOG.md for breaking changes from 1.1.0)*
 
 
 QuadSlice is a basic 9slice drawing library for LÖVE, intended for 2D menu panels and buttons.
@@ -158,9 +158,9 @@ Draws a 9slice using calls to `love.graphics.draw`.
 
 `y`: Y position for drawing.
 
-`w`: Width of the mosaic to draw.
+`w`: Width of the mosaic to draw. Should be greater than zero.
 
-`h`: Height of the mosaic to draw.
+`h`: Height of the mosaic to draw. Should be greater than zero.
 
 `hollow`: *(boolean, optional)* When true, prevents the center tile from being drawn. Can be used to frame other visual entities.
 
@@ -171,7 +171,7 @@ Draws a 9slice using calls to `love.graphics.draw`.
 *Notes:*
 
 
-* If `w` or `h` are <= 0, then nothing is drawn. You can reverse a 9slice by translating and flipping the LÖVE coordinate system (passing -1 as one or both arguments to [love.graphics.scale](https://love2d.org/wiki/love.graphics.scale)) and offsetting by the desired width and height:
+* If `w` or `h` are <= 0, then nothing visible will be drawn. You can reverse a 9slice by translating and flipping the LÖVE coordinate system (passing -1 as one or both arguments to [love.graphics.scale](https://love2d.org/wiki/love.graphics.scale)) and offsetting by the desired width and height:
 
 
 ```lua
@@ -209,9 +209,9 @@ Adds a 9slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
 `y`: Destination top Y position within the batch.
 
-`w`: Width of the mosaic to add.
+`w`: Width of the mosaic to add. Should be greater than zero.
 
-`h`: Height of the mosaic to add.
+`h`: Height of the mosaic to add. Should be greater than zero.
 
 `hollow`: *(Optional, boolean)* When true, prevents the center tile (quad #5) from being added to the batch.
 
@@ -250,9 +250,9 @@ Sets 9slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBat
 
 `y`: Destination top Y position within the batch.
 
-`w`: Width of the mosaic to set.
+`w`: Width of the mosaic to set. Should be greater than zero.
 
-`h`: Height of the mosaic to set.
+`h`: Height of the mosaic to set. Should be greater than zero.
 
 `hollow`: When true, prevents the center tile from being set in the batch.
 
@@ -285,9 +285,9 @@ Gets parameters that are needed to draw a 9slice's quads at a desired width and 
 
 `slice`: The 9slice definition table.
 
-`w`: Width of the 9slice that you want to draw.
+`w`: Width of the 9slice that you want to draw. Should be greater than zero.
 
-`h`: Height of the 9slice that you want to draw.
+`h`: Height of the 9slice that you want to draw. Should be greater than zero.
 
 *Returns:* Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `w3`, `h3`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, and `sh3`.
 
@@ -405,9 +405,9 @@ Gets 9slice vertex positions for a given width and height.
 
 `slice`: The 9slice object to read.
 
-`w`: Width for the 9slice to be drawn.
+`w`: Width for the 9slice to be drawn. Should be greater than zero.
 
-`h`: Height for the 9slice to be drawn.
+`h`: Height for the 9slice to be drawn. Should be greater than zero.
 
 
 *Returns:* The following vertex positions: `x1`, `y1`, `x2`, `y2`, `x3`, `y3`, `x4`, and `y4`.

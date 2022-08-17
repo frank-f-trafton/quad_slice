@@ -1,5 +1,35 @@
 # QuadSlice Changelog
 
+## v1.2.0 (2022\-08\-17)
+
+**NOTE:** This is an API-breaking update.
+
+* Functions no longer bail out early if `w` or `h` are <= 0. Instead, they enforce a minimum value of 0. You can now count on the functions which return values to always return *something*, even if the returned values would result in nothing visible being drawn.
+
+Affected functions:
+
+  * `quadSlice.getDrawParams` *(returns a slew of values)*
+
+  * `quadSlice.draw`
+
+  * `quadSlice.batchAdd` *(returns the index of the last sprite added to the batch)*
+
+  * `quadSlice.batchSet`
+
+
+### Upgrade guide for v1.1.0 to v1.2.0
+
+* Any code that takes the return values of `quadSlice.getDrawParams` or `quadSlice.batchAdd` no longer has to guard against receiving `nil`. To simulate the old behavior, you can wrap the function call in an `if` statement that checks the width and height you would be passing in:
+
+
+```lua
+local w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3
+
+if my_width > 0 and my_height > 0 then
+	w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3 = quadSlice.getDrawParams(my_slice, my_width, my_height)
+end
+```
+
 
 ## v1.1.0 (2022\-08\-13)
 

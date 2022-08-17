@@ -2,7 +2,7 @@
 	QuadSlice: a basic 9-slice library for LÖVE, intended for 2D UI / menu elements.
 	See README.md for usage notes.
 
-	Version: 1.1.0
+	Version: 1.2.0
 
 	License: MIT
 
@@ -155,10 +155,10 @@ function quadSlice.new9Slice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)
 	slice.w2, slice.h2 = w2, h2
 	slice.w3, slice.h3 = w3, h3
 
-	local newQuad = love.graphics.newQuad
-
 	-- You could comment out or delete this if you intend to only use the mesh helper functions.
 	-- [[
+	local newQuad = love.graphics.newQuad
+
 	local quads = {}
 
 	quads[1] = newQuad(x, y, w1, h1, iw, ih)
@@ -238,9 +238,7 @@ function quadSlice.getDrawParams(slice, w, h)
 	elseif type(h) ~= "number" then errBadType("h", 3, h, "number") end
 	--]]
 
-	if w <= 0 or h <= 0 then
-		return
-	end
+	w, h = math.max(0, w), math.max(0, h)
 
 	local w1, h1 = slice.w1, slice.h1
 	local w3, h3 = slice.w3, slice.h3
@@ -276,9 +274,7 @@ function quadSlice.draw(image, slice, x, y, w, h, hollow)
 	assertDraw(2, slice, x, y, w, h, hollow)
 	--]]
 
-	if w <= 0 or h <= 0 then
-		return
-	end
+	w, h = math.max(0, w), math.max(0, h)
 
 	quadSlice.drawFromParams(image, slice.quads, hollow, x,y, quadSlice.getDrawParams(slice, w, h))
 end
@@ -319,9 +315,7 @@ function quadSlice.batchAdd(batch, slice, x, y, w, h, hollow)
 	assertDraw(2, slice, x, y, w, h, hollow)
 	--]]
 
-	if w <= 0 or h <= 0 then
-		return
-	end
+	w, h = math.max(0, w), math.max(0, h)
 
 	local last_index = quadSlice.batchAddFromParams(batch, slice.quads, hollow, x, y, quadSlice.getDrawParams(slice, w, h))
 
@@ -366,9 +360,7 @@ function quadSlice.batchSet(batch, index, slice, x, y, w, h, hollow)
 	assertDraw(3, slice, x, y, w, h, hollow)
 	--]]
 
-	if w <= 0 or h <= 0 then
-		return
-	end
+	w, h = math.max(0, w), math.max(0, h)
 
 	quadSlice.batchSetFromParams(batch, index, slice.quads, hollow, x, y, quadSlice.getDrawParams(slice, w, h))
 end
@@ -438,6 +430,8 @@ end
 function quadSlice.getStretchedVertices(slice, w, h)
 
 	-- No assertions.
+
+	-- (Don't enforce a minimum width or height of 0 in this case.)
 
 	-- Crunch down edges
 	-- [[
