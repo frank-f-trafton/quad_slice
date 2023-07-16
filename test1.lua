@@ -33,6 +33,15 @@ quadSlice.setQuadMirroring(slice_mir_v, false, true)
 local slice_mir_hv = quadSlice.new9Slice(0,0, 32,32, 32,32, 32,32, image_mir:getDimensions())
 quadSlice.setQuadMirroring(slice_mir_hv, true, true)
 
+
+-- 1.2.1: Test unmirroring
+--[[
+quadSlice.setQuadMirroring(slice_mir_h, false, false)
+quadSlice.setQuadMirroring(slice_mir_v, false, false)
+quadSlice.setQuadMirroring(slice_mir_hv, false, false)
+--]]
+
+
 local batch1 = love.graphics.newSpriteBatch(image_mir) -- tests batch:add()
 
 local batch2 = love.graphics.newSpriteBatch(image_mir) -- tests batch:set() with hollow == false
@@ -120,7 +129,11 @@ function love.draw()
 
 		love.graphics.push("all")
 
-		label(8, 424, "mirrored tile tests (normal; horizontal; vertical; horizontal+vertical)")
+		label(8, 400, "mirrored tile tests")
+		label(8 + 196*0, 424, "normal")
+		label(8 + 196*1, 424, "horizontal")
+		label(8 + 196*2, 424, "vertical")
+		label(8 + 196*3, 424, "horizontal+vertical")
 
 		demo_w = math.floor(96 + math.cos(demo_time + math.pi/4) * 32)
 		demo_h = math.floor(96 + math.sin((demo_time / 1.1) + math.pi/4) * 32)

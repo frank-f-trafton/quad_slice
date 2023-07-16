@@ -1,7 +1,7 @@
 # quad\_slice
 
 
-**VERSION:** 1.2.0 *(see CHANGELOG.md for breaking changes from 1.1.0)*
+**VERSION:** 1.2.1 *(see CHANGELOG.md for breaking changes from 1.1.0)*
 
 
 QuadSlice is a basic 9slice drawing library for LÖVE, intended for 2D menu panels and buttons.
@@ -128,7 +128,7 @@ Modifies the quads in a 9slice by mirroring the right column and/or bottom row w
 *Notes:*
 
 
-* Mirroring can be un-done by calling the function again with *false* for `hori` and/or `vert`.
+* Mirroring can be undone by calling the function again with *false* for `hori` and/or `vert`.
 
 * The 9slice table does not keep track of mirroring state (as in, there are no flags in the 9slice table that indicate the current mirroring).
 
@@ -416,7 +416,7 @@ Gets 9slice vertex positions for a given width and height.
 # MIT License
 
 
-Copyright (c) 2022 RBTS
+Copyright (c) 2022, 2023 RBTS
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

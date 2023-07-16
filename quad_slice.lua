@@ -2,7 +2,7 @@
 	QuadSlice: a basic 9-slice library for LÖVE, intended for 2D UI / menu elements.
 	See README.md for usage notes.
 
-	Version: 1.2.0
+	Version: 1.2.1
 
 	License: MIT
 
@@ -201,11 +201,11 @@ function quadSlice.setQuadMirroring(slice, hori, vert)
 	local x,y, w1,h1, w2,h2, w3,h3 = slice.x, slice.y, slice.w1, slice.h1, slice.w2, slice.h2, slice.w3, slice.h3
 
 	-- First, reset all mirror-able quads so that this action is easy to undo.
-	quads[3]:setViewport(x, y + h1, w1, h2)
-	quads[6]:setViewport(x + w1, y + h1, w2, h2)
+	quads[3]:setViewport(x + w1 + w2, y, w3, h1)
+	quads[6]:setViewport(x + w1 + w2, y + h1, w3, h2)
 	quads[7]:setViewport(x, y + h1 + h2, w1, h3)
-	quads[8]:setViewport(x + w1, y + h1 + h2, w2, h3)	
-	quads[9]:setViewport(x + w1 + w2, y + h1, w3, h2)
+	quads[8]:setViewport(x + w1, y + h1 + h2, w2, h3)
+	quads[9]:setViewport(x + w1 + w2, y + h1 + h2, w3, h3)
 
 	if hori and vert then
 		mirrorQuad(quads[1], quads[3], true, false)

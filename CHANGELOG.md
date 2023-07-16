@@ -1,5 +1,11 @@
 # QuadSlice Changelog
 
+
+## v1.2.1 (2023\-07\-16)
+
+* Fixed incorrect default quad viewport assignments in `quadSlice.setQuadMirroring()`.
+
+
 ## v1.2.0 (2022\-08\-17)
 
 **NOTE:** This is an API-breaking update.
