@@ -1,6 +1,54 @@
 # QuadSlice Changelog
 
 
+## v1.3.0 (2023\-07\-17)
+
+**NOTE:** This is an API-breaking update.
+
+* Rewrote the library to use the `__index` metamethod with a class table. See *upgrade guide* for a list of changed functions.
+
+* Slice defs now support columns and rows with zero width and/or height, thus allowing for configurations like 3x1 bars.
+
+* Added `Slice:setTileEnabled()` to allow toggling individual slice tiles.
+
+* Removed the `hollow` argument in drawing functions. (Made redundant by `Slice:setTileEnabled()`.)
+
+* Renamed `quadSlice.new9Slice()` to `quadSlice.newSlice()`.
+
+* Added `quadSlice.draw_functions`, a table of alternative draw functions which omit certain tiles.
+
+* Slice tables now keep track of mirroring state in the fields `slice.mirror_h` and `slice.mirror_v`. They should not be modified directly, but they are safe to read.
+
+
+### Upgrade guide for v1.2.1 to v1.3.0
+
+* Change any instances of `quadSlice.new9Slice()` to `quadSlice.newSlice()`.
+
+* Calls to these functions need to be updated. A *[!]* indicates that the arguments list has changed beyond just using implicit `self`.
+
+  * `quadSlice.getDrawParams()`: changed to `Slice:getDrawParams()`
+
+  * `quadSlice.draw()`: changed to `Slice:draw()` *[!]*
+
+  * `quadSlice.drawFromParams()`: changed to `Slice:drawFromParams()` *[!]*
+
+  * `quadSlice.batchAdd()`: changed to `Slice:batchAdd()` *[!]*
+
+  * `quadSlice.batchAddFromParams()`: changed to `Slice:batchAddFromParams()` *[!]*
+
+  * `quadSlice.batchSet()`: changed to `Slice:batchSet()` *[!]*
+
+  * `quadSlice.batchSetFromParams()`: changed to `Slice:batchSetFromParams()` *[!]*
+
+  * `quadSlice.getTextureUV()`: changed to `Slice:getTextureUV()`
+
+  * `quadSlice.getStretchedVertices()`: changed to `Slice:getStretchedVertices()`
+
+  * `quadSlice.setQuadMirroring()`: changed to `Slice:setMirroring()`
+
+* Any usage of the `hollow` argument needs to be rewritten, either by using `Slice:setTileEnabled(5, false)` or overwriting the slice's `drawFromParams` field with `quadSlice.draw_functions.hollow`.
+
+
 ## v1.2.1 (2023\-07\-16)
 
 * Fixed incorrect default quad viewport assignments in `quadSlice.setQuadMirroring()`.

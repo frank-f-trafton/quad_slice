@@ -1,7 +1,7 @@
 
 --[[
-	A quick example of drawing a repeating pattern within a 9slice center region, using
-	the draw function's 'hollow' flag and a repeating texture.
+	A quick example of drawing a repeating pattern within a hollow 9-slice. The slice's
+	center tile is disabled, and a repeating texture is drawn in place of it.
 
 	This functionality is not included in the core quadSlice library because the texture
 	rebind breaks autobatching. (Not that that's the end of the world or anything, but
@@ -18,8 +18,8 @@ local quad_rep = love.graphics.newQuad(0, 0, 0, 0, image_rep)
 
 -- The 9slice.
 local image_slice = love.graphics.newImage("demo_res/rep_9s.png")
-local slice = quadSlice.new9Slice(0,0, 32,32, 32,32, 32,32, image_slice:getDimensions())
-quadSlice.setQuadMirroring(slice, true, true)
+local slice = quadSlice.newSlice(0,0, 32,32, 32,32, 32,32, image_slice:getDimensions())
+slice:setMirroring(true, true)
 image_slice:setWrap("mirroredrepeat", "mirroredrepeat")
 
 -- Some optional extras.
@@ -59,16 +59,16 @@ end
 
 function love.draw()
 
-	local window_x = love.graphics.getWidth()/2 - (vp_w + frame_w*2)/2
-	local window_y = love.graphics.getHeight()/2 - (vp_h + frame_h*2)/2
+	local window_x = (love.graphics.getWidth() - (vp_w + frame_w*2)) * 0.5
+	local window_y = (love.graphics.getHeight() - (vp_h + frame_h*2)) * 0.5
 
-	-- Handle the repeating pattern first, then draw the 9slice frame over it.
+	-- Handle the repeating pattern first, then draw the slice frame over it.
 	quad_rep:setViewport(math.floor(vp_x), math.floor(vp_y), vp_w, vp_h)
 	love.graphics.draw(image_rep, quad_rep, window_x + frame_w/2, window_y + frame_h/2)
 
-	quadSlice.draw(image_slice, slice, window_x, window_y, vp_w + frame_w, vp_h + frame_h, true)
+	slice:draw(image_slice, window_x, window_y, vp_w + frame_w, vp_h + frame_h, true)
 
-	-- Uncomment to add a literal bell and whistle to the 9slice frame.
+	-- Uncomment to add a literal bell and whistle to the slice frame.
 	--[[
 	love.graphics.draw(image_adornments, q_b, window_x - 30, window_y + 36)
 	love.graphics.draw(image_adornments, q_w, window_x + vp_w, window_y + 432)

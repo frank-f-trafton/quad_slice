@@ -1,4 +1,4 @@
--- Test rendering 9slices as textured LÖVE meshes.
+-- Test rendering 9-Slices as textured LÖVE meshes.
 
 local quadSlice = require("quad_slice")
 
@@ -29,15 +29,15 @@ local vertex_map = {
 
 
 
--- Set up the 9slice as usual.
+-- Set up the 9-Slice as usual.
 local image1 = love.graphics.newImage("demo_res/9s_image.png")
-local slice1 = quadSlice.new9Slice(32,32, 64,64, 8,8, 64,64, image1:getDimensions())
+local slice1 = quadSlice.newSlice(32,32, 64,64, 8,8, 64,64, image1:getDimensions())
 
 
--- Calculate the UV details from the 9slice.
+-- Calculate the UV details from the 9-Slice.
 local slice_vertices
 do
-	local sx1, sy1, sx2, sy2, sx3, sy3, sx4, sy4 = quadSlice.getTextureUV(slice1)
+	local sx1, sy1, sx2, sy2, sx3, sy3, sx4, sy4 = slice1:getTextureUV()
 
 	-- Test mirroring the right column and bottom row.
 	-- 'mirroredrepeat' is not necessary for this when using a mesh.
@@ -88,7 +88,7 @@ local function updateMesh(mesh, vertices, w, h)
 
 	if w <= 0 or h <= 0 then return end
 
-	local x1, y1, x2, y2, x3, y3, x4, y4 = quadSlice.getStretchedVertices(slice1, w, h)
+	local x1, y1, x2, y2, x3, y3, x4, y4 = slice1:getStretchedVertices(w, h)
 
 	local sv = vertices
 
@@ -121,7 +121,7 @@ end
 
 function love.draw()
 
-	-- Move the mouse to resize the 9slice.
+	-- Move the mouse to resize the 9-Slice.
 	local mx, my = love.mouse.getPosition()
 
 	local w = mx - 64

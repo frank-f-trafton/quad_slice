@@ -1,16 +1,16 @@
 # quad\_slice
 
 
-**VERSION:** 1.2.1 *(see CHANGELOG.md for breaking changes from 1.1.0)*
+**VERSION:** 1.3.0 *(see CHANGELOG.md for breaking changes from 1.2.1)*
 
 
-QuadSlice is a basic 9slice drawing library for LÖVE, intended for 2D menu panels and buttons.
+QuadSlice is a 9-Slice drawing library for LÖVE.
 
 
 ![screen_quad_slice](https://user-images.githubusercontent.com/23288188/184142728-87a97b4e-e0a2-4c34-bac8-50f3c1f5d45f.png)
 
 
-## Usage Example
+# Usage Example
 
 
 ```lua
@@ -29,149 +29,165 @@ end
 ```
 
 
-## Features
+# Features
 
 
-* Can draw 9slices with `love.graphics.draw`, or add them to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch)
+* Can draw 9-Slices with `love.graphics.draw` or add them to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
-* Support for mirroring the right column and/or bottom row of tiles
+* Toggle the visibility of individual tiles.
+
+* Mirroring of the right column and/or bottom row of tiles.
+
+* Make 9-Slice subsets (3x1, 2x3, etc.) by specifying zero-width columns or zero-height rows.
 
 * Helper functions to get UV and vertex coordinates for [LÖVE mesh objects](https://love2d.org/wiki/Mesh).
 
 
-## Limitations
+# Limitations
 
 
-* All tiles for a given 9slice must be located on the same texture / spritesheet
+* All tiles for a given slice must be located on the same texture.
 
-* Repeating patterns for the center and edge tiles are not supported (though drawing a repeating pattern in the center isn't too difficult, if you're willing to break autobatching -- see `test_rep_pattern.lua` for an example).
+* No built-in support for repeating patterns in center or edge tiles. (Drawing a repeating pattern in the center isn't too difficult, if you're willing to break autobatching -- see `test_rep_pattern.lua` for an example.)
 
-* 9slices may have artifacts if you draw at a non-integer scale, or otherwise use coordinates or dimensions that are "off-grid."
-
-
-## Functions: Slice table creation
+* Slices may have artifacts if you draw at a non-integer scale, or otherwise use coordinates or dimensions that are "off-grid."
 
 
-### quadSlice.new9Slice
+# Slice Defs
 
-Creates a new 9slice definition.
+When creating a slice definition, you must provide coordinates and dimensions for a 3x3 grid which covers part of the texture you wish to draw: `x`, `y`, `w1`, `h1`, `w2`, `h2`, `w3`, and `h3`. From these coordinates, up to nine LÖVE Quads are generated and stored in an array:
+
+```
+   x    w1   w2   w3
+y  +----+----+----+
+   |q1  |q2  |q3  |
+h1 +----+----+----+
+   |q4  |q5  |q6  |
+h2 +----+----+----+
+   |q7  |q8  |q9  |
+h3 +----+----+----+
+```
+
+If the width or height of a row or column is zero, then the associated tiles are given a shared, non-functional quad with dimensions of `0, 0`. The quad indices remain the same.
+
+Note that due to tile mirroring, the LÖVE Quad positions and dimensions may not match the info stored in the slice table.
 
 
-*Function Signature:*
+# API: Slice table creation
 
+## quadSlice.newSlice
 
-`quadSlice.new9Slice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)`
+Creates a new slice definition.
 
+`local slice = quadSlice.newSlice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)`
 
-*Arguments:*
-
-
-* `x`: Left X position of the tile mosaic within the texture.
+* `x`: Left X position of the tile mosaic in the texture.
 
 * `y`: Top Y position of the tile mosaic.
 
-* `w1`: Width of the left column of tiles. (Must be > 0)
+* `w1`: Width of the left column of tiles. (Must be >= 0)
 
-* `h1`: Height of the top row of tiles. (Must be > 0)
+* `h1`: Height of the top row of tiles. (Must be >= 0)
 
-* `w2`: Width of the middle column of tiles. (Must be > 0)
+* `w2`: Width of the middle column of tiles. (Must be >= 0)
 
-* `h2`: Height of the middle row of tiles. (Must be > 0)
+* `h2`: Height of the middle row of tiles. (Must be >= 0)
 
-* `w3`: Width of the right column of tiles. (Must be > 0)
+* `w3`: Width of the right column of tiles. (Must be >= 0)
 
-* `h3`: Height of the bottom row of tiles. (Must be > 0)
+* `h3`: Height of the bottom row of tiles. (Must be >= 0)
 
-* `iw`: Width of the reference image.
+* `iw`: Width of the reference image. (Should always be > 0)
 
-* `ih`: Height of the reference image.
-
-
-*Returns:* a 9slice definition table.
+* `ih`: Height of the reference image. (Should always be > 0)
 
 
-*Example:*
+**Returns:** a Slice definition table.
 
 
-```lua
-local slice = quadSlice.new9Slice(0,0, 16,16, 4,4, 16,16, my_image:getDimensions())
-```
+# API: Slice state
 
 
-## Functions: Slice positioning and drawing
-
-
-### quadSlice.setQuadMirroring
+## Slice:setMirroring
 
 
 Modifies the quads in a 9slice by mirroring the right column and/or bottom row with those on the opposite side. The image used must have the `mirroredrepeat` [WrapMode](https://love2d.org/wiki/WrapMode) set on the desired axes.
 
+`Slice:setMirroring(mirror_h, mirror_v)`
 
-*Function Signature:*
+* `mirror_h`: When true, the right column mirrors the left column.
 
-
-`quadSlice.setQuadMirroring(slice, hori, vert)`
-
-
-*Arguments:*
+* `mirror_v`: When true, the bottom row mirrors the top row.
 
 
-`slice`: The 9slice to modify.
+**Notes:** Mirroring works by rewriting the viewport coordinates of certain quads.
 
-`hori`: When true, the right column mirrors the left column.
+* H-mirrored slices:
 
-`vert`: When true, the bottom row mirrors the top row.
-
-*Returns:* Nothing.
+  * Quads 3, 6 and 9 are reversed versions of 1, 4 and 7, with negative X positions.
 
 
-*Notes:*
+* V-mirrored slices:
+
+  * Quads 7, 8 and 9 are reversed versions of 1, 2 and 3, with negative Y positions.
 
 
-* Mirroring can be undone by calling the function again with *false* for `hori` and/or `vert`.
+* HV-mirrored slices:
 
-* The 9slice table does not keep track of mirroring state (as in, there are no flags in the 9slice table that indicate the current mirroring).
+  * Quads 3 and 6 are h-flipped versions of 1 and 4.
 
-* This doesn't apply to the mesh helper functions, which don't use quads.
+  * Quads 7 and 8 are v-flipped versions of 1 and 2.
 
-
-### quadSlice.draw
-
-
-Draws a 9slice using calls to `love.graphics.draw`.
+  * Quad 9 is an h-flipped and v-flipped version of 1.
 
 
-*Function Signature:*
+
+## Slice:setTileEnabled
+
+Enables or disables a tile within a slice.
+
+`Slice:setTileEnabled(index, enabled)`
+
+* `index`: The tile index.
+
+* `enabled`: `true` to show the tile, `false` or `nil` to hide it.
 
 
-`quadSlice.draw(image, slice, x, y, w, h, hollow)`
+**Notes:**
+
+* Tile indices go left-to-right, top-to-bottom. Index #1 is the top-left tile.
 
 
-*Arguments:*
+## Slice:resetTiles
+
+Resets the visibility of all tiles and refreshes their quad viewports.
+
+`Slice:resetTiles()`
 
 
-`image`: The image to use.
-
-`slice`: The 9slice definition table.
-
-`x`: X position for drawing.
-
-`y`: Y position for drawing.
-
-`w`: Width of the mosaic to draw. Should be greater than zero.
-
-`h`: Height of the mosaic to draw. Should be greater than zero.
-
-`hollow`: *(boolean, optional)* When true, prevents the center tile from being drawn. Can be used to frame other visual entities.
+# API: Slice positioning and drawing
 
 
-*Returns:* Nothing.
+## Slice:draw
+
+Draws a slice using calls to [love.graphics.draw](https://love2d.org/wiki/love.graphics.draw).
+
+`Slice:draw(texture, x, y, w, h)`
+
+* `texture`: The texture to use.
+
+* `x`: Left X position for drawing.
+
+* `y`: Top Y position for drawing.
+
+* `w`: Width of the mosaic to draw.
+
+* `h`: Height of the mosaic to draw.
 
 
-*Notes:*
+**Notes:**
 
-
-* If `w` or `h` are <= 0, then nothing visible will be drawn. You can reverse a 9slice by translating and flipping the LÖVE coordinate system (passing -1 as one or both arguments to [love.graphics.scale](https://love2d.org/wiki/love.graphics.scale)) and offsetting by the desired width and height:
+* If `w` or `h` are <= 0, then nothing visible will be drawn. You can reverse a slice by translating and flipping the LÖVE coordinate system (passing -1 as one or both arguments to [love.graphics.scale](https://love2d.org/wiki/love.graphics.scale)) and offsetting by the desired width and height:
 
 
 ```lua
@@ -181,170 +197,103 @@ function love.draw()
 	love.graphics.translate(math.floor(x + w/2), math.floor(y + h/2))
 	love.graphics.scale(-1, -1) -- flips on both axes
 
-	quadSlice.draw(image, slice, -w/2, -h/2, w, h, false)
+	slice:draw(texture, -w/2, -h/2, w, h)
 end
 ```
 
 
-### quadSlice.batchAdd
+## Slice:batchAdd
 
 
-Adds a 9slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
+Adds a slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
+`Slice:batchAdd(batch, x, y, w, h)`
 
-*Function Signature:*
+* `batch`: The LÖVE SpriteBatch to append quads to.
 
+* `x`: Destination left X position within the batch.
 
-`quadSlice.batchAdd(batch, slice, x, y, w, h, hollow)`
+* `y`: Destination top Y position within the batch.
 
+* `w`: Width of the mosaic to add.
 
-*Arguments:*
+* `h`: Height of the mosaic to add.
 
 
-`batch`: The LÖVE SpriteBatch to append quads to.
+**Returns:** The index of the last quad added to the batch.
 
-`slice`: The 9slice to add.
 
-`x`: Destination left X position within the batch.
+**Notes:**
 
-`y`: Destination top Y position within the batch.
+* QuadSlice does not support adding reversed slices (as in, flipping or mirroring the entire mosaic) to SpriteBatches. You can reverse the SpriteBatch itself when drawing, but that also reverses all other quads added to it.
 
-`w`: Width of the mosaic to add. Should be greater than zero.
 
-`h`: Height of the mosaic to add. Should be greater than zero.
+## Slice:batchSet
 
-`hollow`: *(Optional, boolean)* When true, prevents the center tile (quad #5) from being added to the batch.
 
+Sets slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch) at a given index. The indices must already have been populated at an earlier time with sprites.
 
-*Returns:* The index of the last quad added to the batch.
 
+`Slice:batchSet(batch, index, x, y, w, h)`
 
-*Notes:*
+* `batch`: The LÖVE SpriteBatch in which to set quads.
 
+* `index`: The initial sprite index.
 
-* QuadSlice currently does not support adding reversed 9slices (as in, flipping or mirroring the entire mosaic) to SpriteBatches. You can reverse the SpriteBatch itself when drawing, but that also reverses all other quads added to it.
+* `x`: Destination left X position within the batch.
 
+* `y`: Destination top Y position within the batch.
 
-### quadSlice.batchSet
+* `w`: Width of the mosaic to set.
 
+* `h`: Height of the mosaic to set.
 
-Sets 9slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch) at a given index. The indexes must already have been populated at an earlier time with sprites.
 
+**Notes:**
 
-*Function Signature:*
+* This method always sets nine sprites, even if the slice contains disabled tiles or zero-sized columns and rows.
 
+* As with `Slice:batchAdd`, this function does not support reversed slices.
 
-`quadSlice.batchSet(batch, index, slice, x, y, w, h, hollow)`
 
+## Slice:getDrawParams
 
-*Arguments*
 
+Gets parameters that are needed to draw a slice's quads at a desired width and height.
 
-`batch`: The LÖVE SpriteBatch to append quads to.
+`local w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3 = Slice:getDrawParams(w, h)`
 
-`index`: Which index to start writing new sprite data to.
+* `w`: Width of the slice that you want to draw.
 
-`slice`: The 9slice to set.
+* `h`: Height of the slice that you want to draw.
 
-`x`: Destination left X position within the batch.
 
-`y`: Destination top Y position within the batch.
+**Returns:** Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `w3`, `h3`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, and `sh3`.
 
-`w`: Width of the mosaic to set. Should be greater than zero.
 
-`h`: Height of the mosaic to set. Should be greater than zero.
+**Notes:**
 
-`hollow`: When true, prevents the center tile from being set in the batch.
+* This is really an internal function, but it's exposed in case you want to store some calculations when drawing multiple copies of a slice with the same dimensions.
 
 
-*Returns:* Nothing.
+## Slice:drawFromParams
+## Slice:batchAddFromParams
+## Slice:batchSetFromParams
 
 
-*Notes:*
+Variations of `Slice:draw`, `Slice:batchAdd` and `Slice:batchSet` which take parameters returned by `Slice:getDrawParams`.
 
+`Slice:drawFromParams(image, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
 
-* Be warned that when `hollow` is true, this function will set *eight* sprites, not nine.
+`local index = Slice:batchAddFromParams(batch, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
 
-* As with `batchAdd`, this function does not support reversed 9slices.
+`Slice:batchSetFromParams(batch, index, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
 
+* `image`, `batch`, and `index` are the same as in the main versions of these functions. `quads` is the internal sequence of quads from the slice (ie `slice.quads`).
 
-### quadSlice.getDrawParams
+* `w1`, `h1`, `w2`, `h2`, `w3`, `h3`: Calculated dimensions of columns and rows.
 
-
-Gets parameters that are needed to draw a 9slice's quads at a desired width and height.
-
-
-*Function Signature:*
-
-
-`quadSlice.getDrawParams(slice, w, h)`
-
-
-*Arguments:*
-
-
-`slice`: The 9slice definition table.
-
-`w`: Width of the 9slice that you want to draw. Should be greater than zero.
-
-`h`: Height of the 9slice that you want to draw. Should be greater than zero.
-
-*Returns:* Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `w3`, `h3`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, and `sh3`.
-
-
-*Notes:*
-
-
-* This is really an internal function, but it's exposed in case you want to store some calculations when drawing multiple copies of a 9slice of the same dimensions.
-
-
-### quadSlice.\*FromParams
-
-
-Variations of `quadSlice.draw`, `quadSlice.batchAdd` and `quadSlice.batchSet` which take parameters returned by `quadSlice.getDrawParams`.
-
-
-*Function Signatures:*
-
-
-`quadSlice.drawFromParams(image, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
-
-`quadSlice.batchAddFromParams(batch, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
-
-`quadSlice.batchSetFromParams(batch, index, quads, hollow, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
-
-
-*Arguments:*
-
-
-`image`, `batch`, `index` and `hollow` are the same as in the main versions of these functions. `quads` is the internal sequence of quads from the 9slice (ie `slice.quads`).
-
-`w1`: Calculated width of the left tile column.
-
-`h1`: Calculated height of the top tile row.
-
-`w2`: Calculated width of the middle tile column.
-
-`h2`: Calculated height of the middle tile row.
-
-`w3`: Calculated width of the right tile column.
-
-`h3`: Calculated height of the bottom tile row.
-
-`sw1`: Scale for the left tile column.
-
-`sh1`: Scale for the top tile row.
-
-`sw2`: Scale for the middle tile column.
-
-`sh2`: Scale for the middle tile row.
-
-`sw3`: Scale for the right tile column.
-
-`sh3`: Scale for the bottom tile row.
-
-
-*Returns:* Nothing.
+* `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, `sh3`: Drawing scale for each column and row.
 
 
 ## Functions: Mesh helpers
@@ -353,64 +302,48 @@ Variations of `quadSlice.draw`, `quadSlice.batchAdd` and `quadSlice.batchSet` wh
 QuadSlice doesn't handle LÖVE meshes directly, but you can use these functions to get the raw vertex and UV coordinates for your own mesh setup and drawing code.
 
 
-### quadSlice.getTextureUV
+## Slice:getTextureUV
 
 
 Gets UV offsets which can be used to populate a mesh.
 
-
-*Function Signature:*
-
-
-`quadSlice.getTextureUV(slice)`
+`local sx1,sy1, sx2,sy2, sx3,sy3, sx4,sy4 = Slice:getTextureUV()`
 
 
-*Arguments:*
+**Returns:** Four pairs of XY coordinates in the range of 0-1, which correspond to the edges around the columns and rows of the 9slice texture.
 
 
-`slice`: The 9slice object to read.
+**Notes:**
+
+* Mirroring assigned with `Slice:setMirroring` won't be detected here, as that is implemented by changing quad viewports, and none of the mesh helper functions touch quads at all.
 
 
-*Returns:* Four pairs of XY coordinates in the range of 0-1, which correspond to the edges around the columns and rows of the 9slice texture: `sx1`, `sy1`, `sx2`, `sy2`, `sx3`, `sy3`, `sx4`, and `sy4`.
+## Slice:getStretchedVertices
 
 
-*Notes:*
-
-* Mirroring assigned with `setQuadMirroring` won't be detected here, as that is implemented by changing quad viewports, and none of the mesh helper functions touch quads at all. Tile mirroring with meshes can be achieved without using the `mirroredrepeat` WrapMode:
+Gets slice vertex positions for a given width and height.
 
 
-```lua
--- Horizontal
-sx3, sx4 = sx2, sx1
-
--- Vertical
-sy3, sy4 = sy2, sy1
-```
+`local x1,y1, x2,y2, x3,y3, x4,y4 = Slice:getStretchedVertices(w, h)`
 
 
-### quadSlice.getStretchedVertices
+* `w`: Width for the slice to be drawn.
+
+* `h`: Height for the slice to be drawn.
 
 
-Gets 9slice vertex positions for a given width and height.
+**Returns:** The following vertex positions: `x1`, `y1`, `x2`, `y2`, `x3`, `y3`, `x4`, and `y4`.
 
 
-*Function Signature:*
+# Alternative Draw Functions
 
+The table `quadSlice.draw_functions` contains a set of alternative drawing functions. These functions omit certain tiles, and might be wanted in cases where it is known ahead of time that a slice will only ever have certain tiles enabled.
 
-`quadSlice.getStretchedVertices(slice, w, h)`
+To apply, overwrite the field `slice.drawFromParams` with the desired function. To remove, set `slice.drawFromParams` to `nil` (so that it picks up the original method through its `__index` class table).
 
+See `test1.lua`, page 5 for a demonstration of each function.
 
-*Arguments:*
-
-
-`slice`: The 9slice object to read.
-
-`w`: Width for the 9slice to be drawn. Should be greater than zero.
-
-`h`: Height for the 9slice to be drawn. Should be greater than zero.
-
-
-*Returns:* The following vertex positions: `x1`, `y1`, `x2`, `y2`, `x3`, `y3`, `x4`, and `y4`.
+If the alternative functions are not required, the whole table can be deleted.
 
 
 # MIT License
