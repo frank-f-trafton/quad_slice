@@ -329,6 +329,21 @@ function love.draw()
 			local draw_fn_tbl = p5_draw_funcs[p5_index]
 
 			slice_enable.drawFromParams = draw_fn_tbl.fn
+
+			-- Uncomment to run a simple stress test.
+			--[[
+			love.graphics.setColor(1,1,1,0.1)
+			for i = 1, 1000 do
+				slice_enable:draw(
+					image_mir,
+					math.floor(0.5 + mid_x + math.cos(demo_time) * i/4),
+					math.floor(0.5 + mid_y + math.sin(demo_time) * i/5),
+					draw_w,
+					draw_h
+				)
+			end
+			--]]
+
 			slice_enable:draw(image_mir, mid_x, mid_y, draw_w, draw_h)
 
 			local x_right = love.graphics.getWidth() - 160
