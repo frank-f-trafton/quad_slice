@@ -117,7 +117,7 @@ function love.keypressed(kc, sc, rep)
 
 	-- Toggle VSync.
 	elseif sc == "0" then
-		love.window.setVSync(1 - love.window.getVSync())
+		love.window.setVSync(love.window.getVSync() == 0 and 1 or 0)
 	end
 
 	-- Step through page 3 partial slices
