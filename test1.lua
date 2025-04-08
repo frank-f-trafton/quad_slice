@@ -117,7 +117,7 @@ function love.keypressed(kc, sc, rep)
 
 	-- Toggle VSync.
 	elseif sc == "0" then
-		love.window.setVSync(love.window.getVSync() == 0 and 1 or 0)
+		love.window.setVSync(love.window.getVSync() ~= 0 and 0 or 1)
 	end
 
 	-- Step through page 3 partial slices
@@ -234,7 +234,7 @@ function love.draw()
 
 		batch1:clear()
 		slice_mir_none:batchAdd(batch1, 0, 0, demo_w, demo_h)
-		
+
 		label(mx, my - 24, "batch:clear(); batch:add()")
 		love.graphics.draw(batch1, mx, my)
 
@@ -378,7 +378,7 @@ function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.print(
 		"PAGE " .. page .. "/" .. n_pages .. "\t(1: lg.draw, 2: spritebatch, 3: zero column/row, 4: tile enable, 5: aux draw)" ..
-		"\t0: VSync (" .. tostring(love.window.getVSync() == 1) .. ")",
+		"\t0: VSync (" .. tostring(love.window.getVSync()) .. ")",
 		8,
 		bottom_dash_y
 	)
