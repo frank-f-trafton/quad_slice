@@ -324,6 +324,11 @@ See `test1.lua`, page 5 for a demonstration of each function.
 If the alternative functions are not required, then the whole table can be deleted.
 
 
+# Slice Metatable
+
+For checking if a table is a Slice object, you can compare its metatable against the one found at `quadSlice._mt_slice`.
+
+
 # MIT License
 
 

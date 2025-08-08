@@ -65,6 +65,7 @@ local zero_quad -- assigned upon first use of quadSlice.newSlice().
 
 local _mt_slice = {}
 _mt_slice.__index = _mt_slice
+quadSlice._mt_slice = _mt_slice
 
 
 -- * Internal *
