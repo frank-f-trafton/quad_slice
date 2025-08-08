@@ -76,7 +76,6 @@ mesh:setVertices(slice_vertices)
 
 
 function love.keypressed(kc, sc, rep)
-
 	if sc == "escape" then
 		love.event.quit()
 		return
@@ -85,7 +84,6 @@ end
 
 
 local function updateMesh(mesh, vertices, w, h)
-
 	if w <= 0 or h <= 0 then return end
 
 	local x1, y1, x2, y2, x3, y3, x4, y4 = slice1:getStretchedVertices(w, h)
@@ -120,7 +118,6 @@ end
 
 
 function love.draw()
-
 	-- Move the mouse to resize the 9-Slice.
 	local mx, my = love.mouse.getPosition()
 

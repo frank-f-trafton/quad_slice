@@ -104,7 +104,6 @@ end
 
 
 function love.keypressed(kc, sc, rep)
-
 	local num = tonumber(sc)
 
 	if sc == "escape" then
@@ -144,7 +143,6 @@ end
 
 
 function love.update(dt)
-
 	if page == 4 then
 		p4_timer = p4_timer + dt
 	end
@@ -153,7 +151,6 @@ end
 
 -- Helper for printing text to the display.
 local function label(x, y, text)
-
 	love.graphics.push("all")
 
 	love.graphics.origin()
@@ -165,7 +162,6 @@ end
 
 
 function love.draw()
-
 	local demo_time = love.timer.getTime()
 	local demo_w, demo_h
 	local mx, my = love.mouse.getPosition()
@@ -308,7 +304,6 @@ function love.draw()
 	elseif page == 5 then
 		if #p5_draw_funcs == 0 then
 			love.graphics.print("[!] quadSlice.draw_functions is empty, renamed, or missing.")
-
 		else
 			love.graphics.printf("Press up/down to select a draw function.", 0, 4, love.graphics.getWidth(), "center")
 
@@ -352,7 +347,6 @@ function love.draw()
 			for i, fn_tbl in ipairs(p5_draw_funcs) do
 				if p5_index == i then
 					love.graphics.setColor(1, 1, 1, 1)
-
 				else
 					love.graphics.setColor(0.75, 0.75, 0.75, 1)
 				end

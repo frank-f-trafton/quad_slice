@@ -1,6 +1,15 @@
 # QuadSlice Changelog
 
 
+## v1.3.1 (2025\-08\-08)
+
+This version contains no API changes from v1.3.0.
+
+* Added more calls to local variables, namely `_lg_draw` for `love.graphics.draw`. The difference is tiny when running under LuaJIT (both compiled and interpreted), but it might help when LÖVE is compiled with PUC-Lua (which I believe is the case with love.js).
+
+* Miscellaneous: minor updates to the README; changed the source code style a bit; updated the copyright date and name in the license text.
+
+
 ## v1.3.0 (2023\-07\-17)
 
 **NOTE:** This is an API-breaking update.

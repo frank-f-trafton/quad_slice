@@ -1,7 +1,7 @@
 # quad\_slice
 
 
-**VERSION:** 1.3.0 *(see CHANGELOG.md for breaking changes from 1.2.1)*
+**VERSION:** 1.3.1
 
 
 QuadSlice is a 9-Slice drawing library for LÖVE.
@@ -81,25 +81,15 @@ Creates a new slice definition.
 
 `local slice = quadSlice.newSlice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)`
 
-* `x`: Left X position of the tile mosaic in the texture.
+* `x`, `y`: Left X position and top Y position of the tile mosaic in the texture.
 
-* `y`: Top Y position of the tile mosaic.
+* `w1`, `h1`: Width of the left column, and height of the top row. (Must be >= 0)
 
-* `w1`: Width of the left column of tiles. (Must be >= 0)
+* `w2`, `h2`: Width of the middle column, and height of the middle row. (Must be >= 0)
 
-* `h1`: Height of the top row of tiles. (Must be >= 0)
+* `w3`, `h3`: Width of the right column, and height of the bottom row. (Must be >= 0)
 
-* `w2`: Width of the middle column of tiles. (Must be >= 0)
-
-* `h2`: Height of the middle row of tiles. (Must be >= 0)
-
-* `w3`: Width of the right column of tiles. (Must be >= 0)
-
-* `h3`: Height of the bottom row of tiles. (Must be >= 0)
-
-* `iw`: Width of the reference image. (Should always be > 0)
-
-* `ih`: Height of the reference image. (Should always be > 0)
+* `iw`, `ih`: Width and height of the reference image. (Should always be > 0)
 
 
 **Returns:** a Slice definition table.
@@ -211,13 +201,9 @@ Adds a slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
 * `batch`: The LÖVE SpriteBatch to append quads to.
 
-* `x`: Destination left X position within the batch.
+* `x`, `y`: Destination left X position and top Y position within the batch.
 
-* `y`: Destination top Y position within the batch.
-
-* `w`: Width of the mosaic to add.
-
-* `h`: Height of the mosaic to add.
+* `w`, `h`: Width and height of the mosaic to add.
 
 
 **Returns:** The index of the last quad added to the batch.
@@ -240,13 +226,9 @@ Sets slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatc
 
 * `index`: The initial sprite index.
 
-* `x`: Destination left X position within the batch.
+* `x`, `y`: Destination left X position and top Y position within the batch.
 
-* `y`: Destination top Y position within the batch.
-
-* `w`: Width of the mosaic to set.
-
-* `h`: Height of the mosaic to set.
+* `w`, `h`: Width and height of the mosaic to set.
 
 
 **Notes:**
@@ -263,9 +245,7 @@ Gets parameters that are needed to draw a slice's quads at a desired width and h
 
 `local w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3 = Slice:getDrawParams(w, h)`
 
-* `w`: Width of the slice that you want to draw.
-
-* `h`: Height of the slice that you want to draw.
+* `w`, `h`: Width and height of the slice that you want to draw.
 
 
 **Returns:** Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `w3`, `h3`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, and `sh3`.
@@ -327,9 +307,7 @@ Gets slice vertex positions for a given width and height.
 `local x1,y1, x2,y2, x3,y3, x4,y4 = Slice:getStretchedVertices(w, h)`
 
 
-* `w`: Width for the slice to be drawn.
-
-* `h`: Height for the slice to be drawn.
+* `w`, `h`: Width and height for the slice to be drawn.
 
 
 **Returns:** The following vertex positions: `x1`, `y1`, `x2`, `y2`, `x3`, `y3`, `x4`, and `y4`.
@@ -343,13 +321,13 @@ To apply, overwrite the field `slice.drawFromParams` with the desired function. 
 
 See `test1.lua`, page 5 for a demonstration of each function.
 
-If the alternative functions are not required, the whole table can be deleted.
+If the alternative functions are not required, then the whole table can be deleted.
 
 
 # MIT License
 
 
-Copyright (c) 2022, 2023 RBTS
+Copyright (c) 2022 - 2025 RBTS / Frank F. Trafton
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

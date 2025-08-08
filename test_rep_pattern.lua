@@ -46,7 +46,6 @@ end
 
 
 function love.update(dt)
-
 	-- Move the pattern in the direction of the mouse.
 
 	local mx, my = love.mouse.getPosition()
@@ -58,7 +57,6 @@ end
 
 
 function love.draw()
-
 	local window_x = (love.graphics.getWidth() - (vp_w + frame_w*2)) * 0.5
 	local window_y = (love.graphics.getHeight() - (vp_h + frame_h*2)) * 0.5
 
