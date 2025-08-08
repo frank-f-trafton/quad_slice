@@ -3,7 +3,17 @@
 
 ## v1.3.1 (2025\-08\-08)
 
-This version contains no API changes from v1.3.0.
+* Added draw functions:
+  * `x0y0w3h2`: 3x2 top and middle
+  * `x0y03h2_h`: 3x2 top and middle (hollow)
+  * `x0y1w3h2`: 3x2 middle and bottom
+  * `x0y1w3h2_h`: 3x2 middle and bottom (hollow)
+  * `x0y0w2h3`: 2x3 left and middle
+  * `x0y0w2h3_h`: 2x3 left and middle (hollow)
+  * `x1y0w2h3`: 2x3 middle and right
+  * `x1y0w2h3_h`: 2x3 middle and right (hollow)
+
+* Fixed bad name for draw function `x0y0w1h3` (left column).
 
 * Added more calls to local variables, namely `_lg_draw` for `love.graphics.draw`. The difference is tiny when running under LuaJIT (both compiled and interpreted), but it might help when LÖVE is compiled with PUC-Lua (which I believe is the case with love.js).
 

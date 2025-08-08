@@ -584,7 +584,7 @@ quadSlice.draw_functions = {
 	end,
 
 	-- Left column
-	x1y0w1h3 = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+	x0y0w1h3 = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
 		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
 		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
 
@@ -693,7 +693,186 @@ quadSlice.draw_functions = {
 		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
 	end,
 
-	-- 3x3 with hollow center
+	-- 3x2 top and middle
+	x0y0w3h2 = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[1], x, y, 0, sw1, sh1)
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+		_lg_draw(texture, quads[3], x + w1 + w2, y, 0, sw3, sh1)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+		_lg_draw(texture, quads[5], x + w1, y + h1, 0, sw2, sh2)
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+	end,
+
+	-- 3x2 top and middle (hollow)
+	x0y03h2_h = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[1], x, y, 0, sw1, sh1)
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+		_lg_draw(texture, quads[3], x + w1 + w2, y, 0, sw3, sh1)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+	end,
+
+	-- 3x2 middle and bottom
+	x0y1w3h2 = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+		_lg_draw(texture, quads[5], x + w1, y + h1, 0, sw2, sh2)
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+
+		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
+	end,
+
+	-- 3x2 middle and bottom (hollow)
+	x0y1w3h2_h = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+
+		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
+	end,
+
+	-- 2x3 left and middle
+	x0y0w2h3 = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[1], x, y, 0, sw1, sh1)
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+		_lg_draw(texture, quads[5], x + w1, y + h1, 0, sw2, sh2)
+
+		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+	end,
+
+	-- 2x3 left and middle (hollow)
+	x0y0w2h3_h = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[1], x, y, 0, sw1, sh1)
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+
+		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+	end,
+
+	-- 2x3 middle and right
+	x1y0w2h3 = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+		_lg_draw(texture, quads[3], x + w1 + w2, y, 0, sw3, sh1)
+
+		_lg_draw(texture, quads[5], x + w1, y + h1, 0, sw2, sh2)
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
+	end,
+
+	-- 2x3 middle and right (hollow)
+	x1y0w2h3_h = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+		_lg_draw(texture, quads[3], x + w1 + w2, y, 0, sw3, sh1)
+
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
+	end,
+
+	-- 3x3 hollow, open top
+	hollow_top = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[1], x, y, 0, sw1, sh1)
+		_lg_draw(texture, quads[3], x + w1 + w2, y, 0, sw3, sh1)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+
+		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
+	end,
+
+	-- 3x3 hollow, open bottom
+	hollow_bottom = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[1], x, y, 0, sw1, sh1)
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+		_lg_draw(texture, quads[3], x + w1 + w2, y, 0, sw3, sh1)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+
+		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
+		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
+	end,
+
+	-- 3x3 hollow, open left
+	hollow_left = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[1], x, y, 0, sw1, sh1)
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+		_lg_draw(texture, quads[3], x + w1 + w2, y, 0, sw3, sh1)
+
+		_lg_draw(texture, quads[6], x + w1 + w2, y + h1, 0, sw3, sh2)
+
+		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
+	end,
+
+	-- 3x3 hollow, open right
+	hollow_right = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
+		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
+
+		_lg_draw(texture, quads[1], x, y, 0, sw1, sh1)
+		_lg_draw(texture, quads[2], x + w1, y, 0, sw2, sh1)
+		_lg_draw(texture, quads[3], x + w1 + w2, y, 0, sw3, sh1)
+
+		_lg_draw(texture, quads[4], x, y + h1, 0, sw1, sh2)
+
+		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
+		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
+		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
+	end,
+
+	-- 3x3 full slice
+	full = _mt_slice.drawFromParams,
+
+	-- 3x3 (hollow)
 	hollow = function(texture, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
 		--if type(texture) ~= "userdata" then errBadType("texture", 1, texture, "userdata (LÖVE Texture)") end
 		--assertDrawParams(2, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)
@@ -708,10 +887,7 @@ quadSlice.draw_functions = {
 		_lg_draw(texture, quads[7], x, y + h1 + h2, 0, sw1, sh3)
 		_lg_draw(texture, quads[8], x + w1, y + h1 + h2, 0, sw2, sh3)
 		_lg_draw(texture, quads[9], x + w1 + w2, y + h1 + h2, 0, sw3, sh3)
-	end,
-
-	-- 3x3 Full slice
-	full = _mt_slice.drawFromParams
+	end
 }
 
 
