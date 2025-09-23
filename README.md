@@ -106,7 +106,7 @@ Builds and assigns alternative draw functions to `quadSlice.draw_functions`.
 * See **Alternative Draw Functions** for more info. This feature is not needed for general use of the library.
 
 
-# quadSlice._mt_slice
+## quadSlice._mt_slice
 
 The metatable for QuadSlice objects. You can check if a table is a QuadSlice with `getmetatable(some_table) == quadSlice._mt_slice`.
 
