@@ -1,11 +1,12 @@
---[[
-	Tests QuadSlice features.
---]]
+-- QuadSlice Test/Demo.
+
 
 --love.window.setVSync(0)
 love.keyboard.setKeyRepeat(true)
 
 local quadSlice = require("quad_slice")
+quadSlice.populateAlternativeDrawFunctions(true)
+
 
 local image1 = love.graphics.newImage("demo_res/9s_test1.png")
 image1:setFilter("nearest", "nearest")
@@ -92,15 +93,8 @@ local p4_tick = 0
 
 
 -- Page 5 setup
-local p5_index = 1
-local p5_draw_funcs = {}
-
-if quadSlice.draw_functions then
-	for k, v in pairs(quadSlice.draw_functions) do
-		table.insert(p5_draw_funcs, {id = k, fn = v})
-	end
-	table.sort(p5_draw_funcs, function(a, b) return a.id < b.id end)
-end
+local p5_d_index = 0
+local p5_key_held = 0
 
 
 function love.keypressed(kc, sc, rep)
@@ -128,15 +122,28 @@ function love.keypressed(kc, sc, rep)
 			p3_start = math.min(#partial_slices, p3_start + 1)
 		end
 
-	-- Step through page 5 aux draw functions
+	-- Page 5: change the alternative draw function index
 	elseif page == 5 then
-		if #p5_draw_funcs > 0 then
-			if sc == "up" then
-				p5_index = math.max(1, p5_index - 1)
-
-			elseif sc == "down" then
-				p5_index = math.min(#p5_draw_funcs, p5_index + 1)
+		if kc == "left" or kc == "right" then
+			if rep then
+				p5_key_held = p5_key_held + 1
 			end
+		end
+
+		if kc == "left" then
+			p5_d_index = math.max(0, p5_d_index - (1 + p5_key_held))
+
+		elseif kc == "right" then
+			p5_d_index = math.min(511, p5_d_index + (1 + p5_key_held))
+		end
+	end
+end
+
+
+function love.keyreleased(kc, sc)
+	if page == 5 then
+		if kc == "left" or kc == "right" then
+			p5_key_held = 0
 		end
 	end
 end
@@ -302,10 +309,11 @@ function love.draw()
 
 	-- Test alternative draw functions
 	elseif page == 5 then
-		if #p5_draw_funcs == 0 then
-			love.graphics.print("[!] quadSlice.draw_functions is empty, renamed, or missing.")
+		if type(quadSlice.draw_functions) ~= "table" then
+			love.graphics.print("[!] quadSlice.draw_functions is not initialized.")
 		else
-			love.graphics.printf("Press up/down to select a draw function.", 0, 4, love.graphics.getWidth(), "center")
+			local str = "Press left/right to select a draw function\nIndex: [" .. p5_d_index .. "]"
+			love.graphics.printf(str, 0, 4, love.graphics.getWidth(), "center")
 
 			-- For demo purposes, we will change the slice's draw function. The slice is shared
 			-- with other test pages, so we need to change it back after drawing.
@@ -321,9 +329,11 @@ function love.draw()
 			slice_enable:draw(image_mir, mid_x, mid_y, draw_w, draw_h)
 			love.graphics.setColor(1, 1, 1, 1)
 
-			local draw_fn_tbl = p5_draw_funcs[p5_index]
+			local draw_fn_tbl = quadSlice.draw_functions[p5_d_index]
 
-			slice_enable.drawFromParams = draw_fn_tbl.fn
+			if draw_fn_tbl then
+				slice_enable.drawFromParams = draw_fn_tbl
+			end
 
 			-- Uncomment to run a simple stress test.
 			--[[
@@ -341,20 +351,6 @@ function love.draw()
 
 			slice_enable:draw(image_mir, mid_x, mid_y, draw_w, draw_h)
 
-			local x_right = love.graphics.getWidth() - 160
-			local yy = 16
-			local yy_add = math.floor(love.graphics.getFont():getHeight()) * 1.3
-			for i, fn_tbl in ipairs(p5_draw_funcs) do
-				if p5_index == i then
-					love.graphics.setColor(1, 1, 1, 1)
-				else
-					love.graphics.setColor(0.75, 0.75, 0.75, 1)
-				end
-				love.graphics.print(fn_tbl.id, x_right, yy)
-				yy = yy + yy_add
-				-- [XXX] This ad hoc list component doesn't handle scrolling.
-			end
-
 			love.graphics.setColor(1, 1, 1, 1)
 			slice_enable.drawFromParams = old_draw_fn
 		end
@@ -371,7 +367,7 @@ function love.draw()
 	)
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.print(
-		"PAGE " .. page .. "/" .. n_pages .. "\t(1: lg.draw, 2: spritebatch, 3: zero column/row, 4: tile enable, 5: aux draw)" ..
+		"PAGE " .. page .. "/" .. n_pages .. "\t(1: lg.draw, 2: spritebatch, 3: zero column/row, 4: tile enable, 5: alt draw)" ..
 		"\t0: VSync (" .. tostring(love.window.getVSync()) .. ")",
 		8,
 		bottom_dash_y

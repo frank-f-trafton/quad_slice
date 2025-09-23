@@ -1,6 +1,17 @@
 # QuadSlice Changelog
 
 
+## v1.311 (2025\-09\-22)
+
+* Changed version scheme from 'N.N.N' to 'N.NNN…'
+
+* Replaced the alternative draw functions with a function (`quadSlice.populateAlternativeDrawFunctions()`) that generates all 512 variations. The field keys are different (numbers rather than strings); the README contains a snippet that restores the old string key names (`"x0y0w3h1"`, etc.). I wager that most people won't have a need for these functions, so they are not initialized by default.
+
+* Removed most argument checks, except in `quadSlice.newSlice()` and `Slice:setTileEnabled()`. Most of them were already commented out for performance reasons.
+
+* Update LICENSE copyright date and name.
+
+
 ## v1.3.1 (2025\-08\-08)
 
 * Added draw functions:

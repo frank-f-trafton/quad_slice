@@ -1,7 +1,7 @@
 # quad\_slice
 
 
-**VERSION:** 1.3.1
+**VERSION:** 1.311
 
 
 QuadSlice is a 9-Slice drawing library for LÖVE.
@@ -31,7 +31,6 @@ end
 
 # Features
 
-
 * Can draw 9-Slices with `love.graphics.draw` or add them to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
 * Toggle the visibility of individual tiles.
@@ -45,10 +44,9 @@ end
 
 # Limitations
 
-
 * All tiles for a given slice must be located on the same texture.
 
-* No built-in support for repeating patterns in center or edge tiles. (Drawing a repeating pattern in the center isn't too difficult, if you're willing to break autobatching -- see `test_rep_pattern.lua` for an example.)
+* No built-in support for repeating patterns in center or edge tiles. (Drawing a repeating pattern in the center isn't too difficult, if you're willing to break autobatching. See `test_rep_pattern.lua` for an example.)
 
 * Slices may have artifacts if you draw at a non-integer scale, or otherwise use coordinates or dimensions that are "off-grid."
 
@@ -73,7 +71,7 @@ If the width or height of a row or column is zero, then the associated tiles are
 Note that due to tile mirroring, the LÖVE Quad positions and dimensions may not match the info stored in the slice table.
 
 
-# API: Slice table creation
+# API: QuadSlice
 
 ## quadSlice.newSlice
 
@@ -81,7 +79,7 @@ Creates a new slice definition.
 
 `local slice = quadSlice.newSlice(x,y, w1,h1, w2,h2, w3,h3, iw,ih)`
 
-* `x`, `y`: Left X position and top Y position of the tile mosaic in the texture.
+* `x`, `y`: Left X and top Y positions of the tile mosaic in the texture.
 
 * `w1`, `h1`: Width of the left column, and height of the top row. (Must be >= 0)
 
@@ -95,11 +93,28 @@ Creates a new slice definition.
 **Returns:** a Slice definition table.
 
 
-# API: Slice state
+## quadSlice.populateAlternativeDrawFunctions
+
+Builds and assigns alternative draw functions to `quadSlice.draw_functions`.
+
+`quadSlice.populateAlternativeDrawFunctions(do_assert)`
+
+* `[do_assert]`: *(false)* When true, includes assertion checks in the functions.
+
+**Notes**:
+
+* See **Alternative Draw Functions** for more info. This feature is not needed for general use of the library.
+
+
+# quadSlice._mt_slice
+
+The metatable for QuadSlice objects. You can check if a table is a QuadSlice with `getmetatable(some_table) == quadSlice._mt_slice`.
+
+
+# API: Slice Objects
 
 
 ## Slice:setMirroring
-
 
 Modifies the quads in a 9slice by mirroring the right column and/or bottom row with those on the opposite side. The image used must have the `mirroredrepeat` [WrapMode](https://love2d.org/wiki/WrapMode) set on the desired axes.
 
@@ -155,9 +170,6 @@ Resets the visibility of all tiles and refreshes their quad viewports.
 `Slice:resetTiles()`
 
 
-# API: Slice positioning and drawing
-
-
 ## Slice:draw
 
 Draws a slice using calls to [love.graphics.draw](https://love2d.org/wiki/love.graphics.draw).
@@ -166,13 +178,9 @@ Draws a slice using calls to [love.graphics.draw](https://love2d.org/wiki/love.g
 
 * `texture`: The texture to use.
 
-* `x`: Left X position for drawing.
+* `x`, `y`: Left X and top Y position for drawing.
 
-* `y`: Top Y position for drawing.
-
-* `w`: Width of the mosaic to draw.
-
-* `h`: Height of the mosaic to draw.
+* `w`, `h`: Width and height of the mosaic to draw.
 
 
 **Notes:**
@@ -194,14 +202,13 @@ end
 
 ## Slice:batchAdd
 
-
 Adds a slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
 `Slice:batchAdd(batch, x, y, w, h)`
 
 * `batch`: The LÖVE SpriteBatch to append quads to.
 
-* `x`, `y`: Destination left X position and top Y position within the batch.
+* `x`, `y`: Destination left X and top Y position within the batch.
 
 * `w`, `h`: Width and height of the mosaic to add.
 
@@ -216,9 +223,7 @@ Adds a slice to a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch).
 
 ## Slice:batchSet
 
-
 Sets slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatch) at a given index. The indices must already have been populated at an earlier time with sprites.
-
 
 `Slice:batchSet(batch, index, x, y, w, h)`
 
@@ -226,7 +231,7 @@ Sets slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatc
 
 * `index`: The initial sprite index.
 
-* `x`, `y`: Destination left X position and top Y position within the batch.
+* `x`, `y`: Destination left X and top Y position within the batch.
 
 * `w`, `h`: Width and height of the mosaic to set.
 
@@ -240,16 +245,13 @@ Sets slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatc
 
 ## Slice:getDrawParams
 
-
 Gets parameters that are needed to draw a slice's quads at a desired width and height.
 
 `local w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3 = Slice:getDrawParams(w, h)`
 
 * `w`, `h`: Width and height of the slice that you want to draw.
 
-
 **Returns:** Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `w3`, `h3`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, and `sh3`.
-
 
 **Notes:**
 
@@ -259,7 +261,6 @@ Gets parameters that are needed to draw a slice's quads at a desired width and h
 ## Slice:drawFromParams
 ## Slice:batchAddFromParams
 ## Slice:batchSetFromParams
-
 
 Variations of `Slice:draw`, `Slice:batchAdd` and `Slice:batchSet` which take parameters returned by `Slice:getDrawParams`.
 
@@ -276,22 +277,13 @@ Variations of `Slice:draw`, `Slice:batchAdd` and `Slice:batchSet` which take par
 * `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, `sh3`: Drawing scale for each column and row.
 
 
-## Functions: Mesh helpers
-
-
-QuadSlice doesn't handle LÖVE meshes directly, but you can use these functions to get the raw vertex and UV coordinates for your own mesh setup and drawing code.
-
-
 ## Slice:getTextureUV
-
 
 Gets UV offsets which can be used to populate a mesh.
 
 `local sx1,sy1, sx2,sy2, sx3,sy3, sx4,sy4 = Slice:getTextureUV()`
 
-
 **Returns:** Four pairs of XY coordinates in the range of 0-1, which correspond to the edges around the columns and rows of the 9slice texture.
-
 
 **Notes:**
 
@@ -300,33 +292,94 @@ Gets UV offsets which can be used to populate a mesh.
 
 ## Slice:getStretchedVertices
 
-
 Gets slice vertex positions for a given width and height.
-
 
 `local x1,y1, x2,y2, x3,y3, x4,y4 = Slice:getStretchedVertices(w, h)`
 
-
 * `w`, `h`: Width and height for the slice to be drawn.
-
 
 **Returns:** The following vertex positions: `x1`, `y1`, `x2`, `y2`, `x3`, `y3`, `x4`, and `y4`.
 
 
 # Alternative Draw Functions
 
-The table `quadSlice.draw_functions` contains a set of alternative drawing functions. These functions omit certain tiles, and might be wanted in cases where it is known ahead of time that a slice will only ever have certain tiles enabled.
+QuadSlice provides alternative draw functions that render only certain quads. (Note that they have no impact on manual SpriteBatch or Mesh methods.) To use them, first initialize the functions after loading QuadSlice:
 
-To apply, overwrite the field `slice.drawFromParams` with the desired function. To remove, set `slice.drawFromParams` to `nil` (so that it picks up the original method through its `__index` class table).
+`quadSlice.populateAlternativeDrawFunctions()`
 
-See `test1.lua`, page 5 for a demonstration of each function.
+The functions are placed in `quadSlice.draw_functions`, with indices 0 through 511. In binary notation, the index represents which quads are rendered. Handily, LuaJIT allows us to write numbers in binary. For example, `quadSlice.draw_functions[0b111101111]` is a function that omits the central quad.
 
-If the alternative functions are not required, then the whole table can be deleted.
+If your build of LÖVE wasn't compiled with LuaJIT, then add the numbers in this chart to get the index of the desired function:
 
+```
+	+----+----+----+
+	|   1|   2|   4|
+	+----+----+----+
+	|   8|  16|  32|
+	+----+----+----+
+	|  64| 128| 256|
+	+----+----+----+
+```
 
-# Slice Metatable
+…or, use a helper function like this:
 
-For checking if a table is a Slice object, you can compare its metatable against the one found at `quadSlice._mt_slice`.
+```lua
+local function _getDrawIndex(q1, q2, q3, q4, q5, q6, q7, q8, q9)
+	return (q1 and 1 or 0)
+		+ (q2 and 2 or 0)
+		+ (q3 and 4 or 0)
+		+ (q4 and 8 or 0)
+		+ (q5 and 16 or 0)
+		+ (q6 and 32 or 0)
+		+ (q7 and 64 or 0)
+		+ (q8 and 128 or 0)
+		+ (q9 and 256 or 0)
+end
+```
+
+Now, in your QuadSlice object, overwrite `slice.drawFromParams` with this function. To revert to the default draw function, overwrite it again with `nil`.
+
+In older versions of QuadSlice, `quadSlice.draw_functions` was a table of hard-coded draw functions with string keys. They almost doubled the size of the main source file on disk, they were difficult to review, and they didn't provide full coverage of the 512 variations. If you would prefer using the old function IDs, run the following snippet after calling `quadSlice.populateAlternativeDrawFunctions()`:
+
+```lua
+-- Old draw_functions behavior, from before version 1.311:
+do
+	local df = quadSlice.draw_functions
+	quadSlice.draw_functions = {
+		blank = df[0],
+		center = df[16],
+		corners = df[325],
+		x0y0w3h1 = df[7], -- (top row)
+		x0y1w3h1 = df[56], -- (middle row)
+		x0y2w3h1 = df[448], -- (bottom row)
+		x0y0w1h3 = df[73], -- (left column)
+		x1y0w1h3 = df[146], -- (middle column)
+		x2y0w1h3 = df[292], -- (right column)
+		x0y0w2h2 = df[27], -- (2x2 upper-left)
+		x1y0w2h2 = df[54], -- (2x2 upper-right)
+		x0y1w2h2 = df[216], -- (2x2 bottom-left)
+		x1y1w2h2 = df[432], -- (2x2 bottom-right)
+		x1y0w1h2 = df[18], -- (1x2 middle + top)
+		x1y1w1h2 = df[144], -- (1x2 middle + bottom)
+		x0y1w2h1 = df[24], -- (2x1 middle + left)
+		x1y1w2h1 = df[48], -- (2x1 middle + right)
+		x0y0w3h2 = df[63], -- (3x2 top and middle)
+		x0y03h2_h = df[47], -- (3x2 top and middle (hollow))
+		x0y1w3h2 = df[504], -- (3x2 middle and bottom)
+		x0y1w3h2_h = df[488], -- (3x2 middle and bottom (hollow))
+		x0y0w2h3 = df[219], -- (2x3 left and middle)
+		x0y0w2h3_h = df[203], -- (2x3 left and middle (hollow))
+		x1y0w2h3 = df[438], -- (2x3 middle and right)
+		x1y0w2h3_h = df[422], -- (2x3 middle and right (hollow))
+		hollow_top = df[493], -- (3x3 hollow, open top)
+		hollow_bottom = df[367], -- (3x3 hollow, open bottom)
+		hollow_left = df[487], -- (3x3 hollow, open left)
+		hollow_right = df[463], -- (3x3 hollow, open right)
+		full = df[511], -- (3x3 full slice)
+		hollow = df[495] -- (3x3 (hollow))
+	}
+end
+```
 
 
 # MIT License
