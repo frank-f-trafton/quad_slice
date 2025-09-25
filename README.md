@@ -97,9 +97,7 @@ Creates a new slice definition.
 
 Builds and assigns alternative draw functions to `quadSlice.draw_functions`.
 
-`quadSlice.populateAlternativeDrawFunctions(do_assert)`
-
-* `[do_assert]`: *(false)* When true, includes assertion checks in the functions.
+`quadSlice.populateAlternativeDrawFunctions()`
 
 **Notes**:
 
@@ -144,7 +142,6 @@ Modifies the quads in a 9slice by mirroring the right column and/or bottom row w
   * Quads 7 and 8 are v-flipped versions of 1 and 2.
 
   * Quad 9 is an h-flipped and v-flipped version of 1.
-
 
 
 ## Slice:setTileEnabled
@@ -339,7 +336,7 @@ end
 
 Now, in your QuadSlice object, overwrite `slice.drawFromParams` with this function. To revert to the default draw function, overwrite it again with `nil`.
 
-In older versions of QuadSlice, `quadSlice.draw_functions` was a table of hard-coded draw functions with string keys. They almost doubled the size of the main source file on disk, they were difficult to review, and they didn't provide full coverage of the 512 variations. If you would prefer using the old function IDs, run the following snippet after calling `quadSlice.populateAlternativeDrawFunctions()`:
+In older versions of QuadSlice, `quadSlice.draw_functions` was a table of hand-written functions with string keys. They almost doubled the size of the main source file on disk, they were difficult to review, and they didn't provide full coverage of the 512 variations. If you would prefer using the old function IDs, run the following snippet after calling `quadSlice.populateAlternativeDrawFunctions()`:
 
 ```lua
 -- Old draw_functions behavior, from before version 1.311:
