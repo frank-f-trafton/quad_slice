@@ -168,6 +168,17 @@ local function label(x, y, text)
 end
 
 
+local function _dec2BinStr(n) -- quick-and-dumb string maker for binary numbers < 512.
+	n = math.floor(n)
+	local s = ""
+	for i = 1, 9 do
+		s = tostring(n % 2) .. s
+		n = math.floor(n / 2)
+	end
+	return "0b" .. s
+end
+
+
 function love.draw()
 	local demo_time = love.timer.getTime()
 	local demo_w, demo_h
@@ -278,8 +289,8 @@ function love.draw()
 	-- Enabling and disabling individual tiles.
 	elseif page == 4 then
 		local draw_w, draw_h = 160, 160
-		local mid_x = (love.graphics.getWidth() - draw_w) / 2
-		local mid_y = (love.graphics.getHeight() - draw_h) / 2
+		local mid_x = math.floor((love.graphics.getWidth() - draw_w) / 2)
+		local mid_y = math.floor((love.graphics.getHeight() - draw_h) / 2)
 
 		-- First, draw a dim version of the slice with all tiles enabled so that it isn't so jarring.
 		love.graphics.setColor(1, 1, 1, 0.34)
@@ -312,7 +323,7 @@ function love.draw()
 		if type(quadSlice.draw_functions) ~= "table" then
 			love.graphics.print("[!] quadSlice.draw_functions is not initialized.")
 		else
-			local str = "Press left/right to select a draw function\nIndex: [" .. p5_d_index .. "]"
+			local str = "Press left/right to select a draw function\nIndex: [" .. p5_d_index .. "] | [" .. _dec2BinStr(p5_d_index) .. "]"
 			love.graphics.printf(str, 0, 4, love.graphics.getWidth(), "center")
 
 			-- For demo purposes, we will change the slice's draw function. The slice is shared
@@ -320,8 +331,8 @@ function love.draw()
 			local old_draw_fn = slice_enable.drawFromParams
 
 			local draw_w, draw_h = 160, 160
-			local mid_x = (love.graphics.getWidth() - draw_w) / 2
-			local mid_y = (love.graphics.getHeight() - draw_h) / 2
+			local mid_x = math.floor((love.graphics.getWidth() - draw_w) / 2)
+			local mid_y = math.floor((love.graphics.getHeight() - draw_h) / 2)
 
 			love.graphics.setColor(1, 1, 1, 0.34)
 			slice_enable.drawFromParams = nil

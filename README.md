@@ -1,7 +1,7 @@
 # quad\_slice
 
 
-**VERSION:** 1.311
+**VERSION:** 1.312
 
 
 QuadSlice is a 9-Slice drawing library for LÖVE.
@@ -244,11 +244,11 @@ Sets slice quads within a [LÖVE SpriteBatch](https://love2d.org/wiki/SpriteBatc
 
 Gets parameters that are needed to draw a slice's quads at a desired width and height.
 
-`local w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3 = Slice:getDrawParams(w, h)`
+`local w1,h1, w2,h2, sw1,sh1, sw2,sh2, sw3,sh3 = Slice:getDrawParams(w, h)`
 
 * `w`, `h`: Width and height of the slice that you want to draw.
 
-**Returns:** Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `w3`, `h3`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, and `sh3`.
+**Returns:** Numerous arguments which are used in the `fromParams` drawing functions: `w1`, `h1`, `w2`, `h2`, `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, and `sh3`.
 
 **Notes:**
 
@@ -261,15 +261,15 @@ Gets parameters that are needed to draw a slice's quads at a desired width and h
 
 Variations of `Slice:draw`, `Slice:batchAdd` and `Slice:batchSet` which take parameters returned by `Slice:getDrawParams`.
 
-`Slice:drawFromParams(image, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
+`Slice:drawFromParams(image, quads, x,y, w1,h1, w2,h2, sw1,sh1, sw2,sh2, sw3,sh3)`
 
-`local index = Slice:batchAddFromParams(batch, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
+`local index = Slice:batchAddFromParams(batch, quads, x,y, w1,h1, w2,h2, sw1,sh1, sw2,sh2, sw3,sh3)`
 
-`Slice:batchSetFromParams(batch, index, quads, x,y, w1,h1, w2,h2, w3,h3, sw1,sh1, sw2,sh2, sw3,sh3)`
+`Slice:batchSetFromParams(batch, index, quads, x,y, w1,h1, w2,h2, sw1,sh1, sw2,sh2, sw3,sh3)`
 
 * `image`, `batch`, and `index` are the same as in the main versions of these functions. `quads` is the internal sequence of quads from the slice (ie `slice.quads`).
 
-* `w1`, `h1`, `w2`, `h2`, `w3`, `h3`: Calculated dimensions of columns and rows.
+* `w1`, `h1`, `w2`, `h2`: Calculated dimensions of columns and rows. Note that `w3` and `h3` are omitted.
 
 * `sw1`, `sh1`, `sw2`, `sh2`, `sw3`, `sh3`: Drawing scale for each column and row.
 
@@ -304,7 +304,7 @@ QuadSlice provides alternative draw functions that render only certain quads. (N
 
 `quadSlice.populateAlternativeDrawFunctions()`
 
-The functions are placed in `quadSlice.draw_functions`, with indices 0 through 511. In binary notation, the index represents which quads are rendered. Handily, LuaJIT allows us to write numbers in binary. For example, `quadSlice.draw_functions[0b111101111]` is a function that omits the central quad.
+The functions are placed in `quadSlice.draw_functions`, with indices 0 through 511. In binary notation, the index represents which quads are rendered. Handily, LuaJIT allows us to write numbers in binary. For example, `quadSlice.draw_functions[0b111101111]` is a function that omits the central quad. (`0b000000001` is tile #1, in the upper-left.)
 
 If your build of LÖVE wasn't compiled with LuaJIT, then add the numbers in this chart to get the index of the desired function:
 

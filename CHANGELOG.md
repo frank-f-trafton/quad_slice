@@ -1,6 +1,21 @@
 # QuadSlice Changelog
 
 
+## v1.312 (2025\-10\-02)
+
+* test1.lua:
+  * Pages 4 and 5: added flooring to the centred slice coordinates so that they don't become distorted as the user resizes the window.
+  * Page 5: added the index of the currently displayed alternative draw function in binary notation.
+
+* Removed arguments `w3` and `h3` from the following methods because they were not used:
+  * `Slice:getDrawParams()`
+  * `Slice:drawFromParams()`
+  * `Slice:batchAddFromParams()`
+  * `Slice:batchSetFromParams()`
+
+* Added a note to the README indicating which tile is the upper-left in binary notation.
+
+
 ## v1.311 (2025\-09\-22)
 
 * Changed version scheme from 'N.N.N' to 'N.NNN…'
